@@ -291,6 +291,8 @@ watch(
 
 .log-btn-close:hover { color: var(--danger); border-color: var(--danger); }
 
+/* Expanded panel floats above the content, anchored on top of the summary bar.
+   The summary itself stays in flow as the page footer. */
 .log-panel {
   position: absolute;
   bottom: 100%;
@@ -304,13 +306,12 @@ watch(
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
 }
 
-/* In maximized mode the panel uses normal flex flow inside the fixed wrapper. */
+/* In maximized mode the wrapper covers the viewport; panel fills it with flex. */
 .log-wrapper.maximized .log-panel {
   position: static;
   flex: 1;
   min-height: 0;
   border-bottom: 1px solid var(--border);
-  border-top: none;
   box-shadow: none;
   order: 1;
 }

@@ -42,8 +42,15 @@ html, body {
   flex-direction: column;
 }
 
-// Neutralize Vuetify's default app background so our gradient shows through.
-.v-application,
+// Neutralize Vuetify's default app background so our gradient shows through,
+// and make the app fill the viewport so the event-log sits at the very bottom.
+.v-application {
+  background: transparent !important;
+  min-height: 0 !important;
+  flex: 1 !important;
+  min-width: 0;
+}
+
 .v-application__wrap {
   background: transparent !important;
   min-height: 0 !important;

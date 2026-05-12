@@ -87,6 +87,7 @@ onMounted(() => {
   gap: 10px;
   min-height: 0;
   min-width: 0;
+  padding-bottom: 108px;
 }
 
 .phase-label {
