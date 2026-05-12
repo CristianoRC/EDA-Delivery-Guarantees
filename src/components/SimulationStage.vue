@@ -3,16 +3,34 @@
     <div
       ref="stageEl"
       class="stage-grid"
-      :class="{ 'dlq-mode': store.scenarioConfig.showDLQ }"
+      :class="{
+        'dlq-mode': store.scenarioConfig.showDLQ,
+        'outbox-mode': store.scenarioConfig.showOutbox,
+      }"
     >
       <pipeline-node
         variant="producer"
         icon="📤"
         label="PRODUCER"
+        :desc="store.isOutbox ? 'Writes business + outbox' : ''"
         stat-label="published"
         :stat-value="store.stats.physicalSent"
       />
       <div class="arrow">→</div>
+
+      <template v-if="store.scenarioConfig.showOutbox">
+        <pipeline-node
+          variant="outbox"
+          icon="📦"
+          :label="outboxLabel"
+          :desc="outboxDesc"
+          stat-label="pending"
+          :stat-value="store.stats.outboxPending"
+          stat-class="outbox-stat"
+        />
+        <div class="arrow">→</div>
+      </template>
+
       <pipeline-node
         variant="broker"
         icon="📨"
@@ -60,7 +78,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import PipelineNode from './PipelineNode.vue'
 import AppBottomBar from './AppBottomBar.vue'
 import { useSimulatorStore } from '@/stores/simulator'
@@ -69,6 +87,9 @@ import { registerStage, registerLayer } from '@/composables/useAnimation'
 const store = useSimulatorStore()
 const stageEl = ref(null)
 const layerEl = ref(null)
+
+const outboxLabel = computed(() => store.outboxMode === 'cdc' ? 'CDC + OUTBOX' : 'OUTBOX + RELAY')
+const outboxDesc = computed(() => store.outboxMode === 'cdc' ? 'WAL streamed near-realtime' : 'Worker polls pending rows')
 
 onMounted(() => {
   registerStage(stageEl.value)
@@ -115,6 +136,11 @@ onMounted(() => {
       grid-column: 3;
       grid-row: 3;
     }
+  }
+
+  &.outbox-mode {
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 4px;
   }
 }
 

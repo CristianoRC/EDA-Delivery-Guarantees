@@ -7,6 +7,7 @@ const nodes = {
   consumer: null,
   db: null,
   dlq: null,
+  outbox: null,
 }
 let stageEl = null
 let layerEl = null

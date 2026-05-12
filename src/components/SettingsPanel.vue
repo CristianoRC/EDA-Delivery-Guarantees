@@ -56,7 +56,39 @@
       </div>
     </template>
 
-    <span v-if="!sc.showIdempotency && !sc.showDLQ" class="setting-hint" style="font-size:11px;">
+    <template v-if="sc.showOutbox">
+      <div class="setting-row">
+        <span class="setting-label">Relay strategy</span>
+        <div class="seg-control">
+          <button
+            class="seg-btn"
+            :class="{ active: store.outboxMode === 'polling' }"
+            @click="store.setOutboxMode('polling')"
+          >
+            🛰️ Polling
+          </button>
+          <button
+            class="seg-btn"
+            :class="{ active: store.outboxMode === 'cdc' }"
+            @click="store.setOutboxMode('cdc')"
+          >
+            ⚡ CDC
+          </button>
+        </div>
+        <span class="setting-hint">
+          <strong v-if="store.outboxMode === 'polling'">Polling:</strong>
+          <template v-if="store.outboxMode === 'polling'">
+            background worker runs <code>SELECT … WHERE published_at IS NULL</code> every ~1.5s and publishes the batch. Simple, but adds DB load and latency.
+          </template>
+          <strong v-else>CDC:</strong>
+          <template v-if="store.outboxMode === 'cdc'">
+            connector (Debezium / SQL Server CT) streams changes from the WAL near-realtime — no polling load, lower latency.
+          </template>
+        </span>
+      </div>
+    </template>
+
+    <span v-if="!sc.showIdempotency && !sc.showDLQ && !sc.showOutbox" class="setting-hint" style="font-size:11px;">
       No extra settings for this scenario. Just inject failures and watch what happens.
     </span>
   </div>
@@ -134,5 +166,33 @@ const sc = computed(() => store.scenarioConfig)
   font-size: 11px;
   font-weight: 700;
   color: var(--text-dim);
+}
+
+.seg-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 2px;
+}
+.seg-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 4px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover { color: var(--text); }
+  &.active {
+    background: var(--outbox);
+    color: #0b1220;
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
+  }
 }
 </style>

@@ -2,7 +2,7 @@
   <section class="card card-fails">
     <header class="card-header">
       <span class="card-title">Inject failures</span>
-      <span class="card-sub">real-world simulation</span>
+      <span class="card-sub">{{ store.isOutbox ? 'outbox-specific' : 'real-world simulation' }}</span>
     </header>
     <div class="failures-grid">
       <label v-for="chip in chips" :key="chip.key" class="fail-chip">
@@ -14,15 +14,23 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useSimulatorStore } from '@/stores/simulator'
 const store = useSimulatorStore()
 
-const chips = [
+const DEFAULT_CHIPS = [
   { key: 'producer', label: '📤 Producer 10%' },
   { key: 'network', label: '📡 Network 15%' },
   { key: 'ack', label: '✉️ ACK 20%' },
   { key: 'consumer', label: '💥 Crash 15%' },
 ]
+
+const OUTBOX_CHIPS = [
+  { key: 'dbCommit', label: '💾 DB commit 25%' },
+  { key: 'relayCrash', label: '🛰️ Relay crash 40%' },
+]
+
+const chips = computed(() => store.isOutbox ? OUTBOX_CHIPS : DEFAULT_CHIPS)
 </script>
 
 <style lang="scss" scoped>
