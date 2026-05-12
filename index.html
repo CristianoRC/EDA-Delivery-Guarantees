@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delivery Guarantees Simulator — EDA</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2338bdf8'/><stop offset='1' stop-color='%23a78bfa'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%230b1220'/><path d='M28 8 L14 36 L28 36 L24 56 L50 26 L34 26 L40 8 Z' fill='url(%23g)' stroke='%23e8edf7' stroke-width='1.5' stroke-linejoin='round'/></svg>" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ========== TOPBAR ========== -->
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚡</span>
+    <div>
+      <h1>Delivery Guarantees in EDA</h1>
+      <p class="subtitle">Producer → Broker → Consumer → DB</p>
+    </div>
+  </div>
+
+  <div class="topbar-controls">
+    <div class="control-group">
+      <label>Tool</label>
+      <select id="toolSelect" class="select">
+        <optgroup label="Azure">
+          <option value="servicebus">Azure Service Bus</option>
+          <option value="servicebus-sessions">Service Bus + Sessions</option>
+          <option value="eventhubs">Azure Event Hubs</option>
+          <option value="eventgrid">Azure Event Grid</option>
+          <option value="storagequeue">Azure Storage Queue</option>
+        </optgroup>
+        <optgroup label="Others">
+          <option value="rabbitmq">RabbitMQ</option>
+          <option value="kafka">Apache Kafka</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Guarantee</label>
+      <div class="mode-tabs">
+        <button class="mode-tab" data-mode="at-most-once">At-most-once</button>
+        <button class="mode-tab active" data-mode="at-least-once">At-least-once</button>
+        <button class="mode-tab" data-mode="exactly-once">Exactly-once</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Idempotency</label>
+      <label class="switch big">
+        <input type="checkbox" id="idempotencyToggle" />
+        <span class="slider"></span>
+        <span id="idemLabel" class="switch-state">OFF</span>
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label>Speed</label>
+      <select id="speedSelect" class="select small">
+        <option value="2200">Slow</option>
+        <option value="1400" selected>Normal</option>
+        <option value="700">Fast</option>
+      </select>
+    </div>
+
+    <button id="resetBtn" class="btn btn-ghost">Reset</button>
+  </div>
+</header>
+
+<!-- ========== TOOL INFO (1 LINE) ========== -->
+<div id="toolInfo" class="tool-info"></div>
+
+<!-- ========== STAGE ========== -->
+<main class="stage">
+  <div id="phaseLabel" class="phase-label">Waiting...</div>
+
+  <div class="stage-grid">
+    <div class="node node-producer" id="nodeProducer">
+      <div class="node-icon">📤</div>
+      <div class="node-label">PRODUCER</div>
+      <div class="node-stat"><span>published</span><b id="statSent">0</b></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node node-broker" id="nodeBroker">
+      <div class="node-icon">📨</div>
+      <div class="node-label" id="brokerLabel">BROKER</div>
+      <div class="node-desc" id="brokerDesc">Queue / Topic</div>
+      <div class="node-stat"><span>in queue</span><b id="statQueue">0</b></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node node-consumer" id="nodeConsumer">
+      <div class="node-icon">⚙️</div>
+      <div class="node-label">CONSUMER</div>
+      <div class="node-stat"><span>processed</span><b id="statProcessed">0</b></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node node-db" id="nodeDb">
+      <div class="node-icon">💾</div>
+      <div class="node-label">DATABASE</div>
+      <div class="node-desc">John's balance</div>
+      <div class="node-stat balance"><span>balance</span><b id="statBalance">$ 0</b></div>
+    </div>
+    <div id="msgLayer" class="msg-layer"></div>
+  </div>
+
+  <!-- ========== BOTTOM BAR ========== -->
+  <div class="bottom-bar">
+
+    <!-- ACTIONS -->
+    <section class="card card-actions">
+      <header class="card-header">
+        <span class="card-title">Send</span>
+        <span class="card-sub">$100 per msg</span>
+      </header>
+      <div class="actions">
+        <button id="send1" class="btn btn-primary">+1</button>
+        <button id="send5" class="btn">+5</button>
+        <button id="sendBurst" class="btn btn-danger">Chaos burst</button>
+      </div>
+    </section>
+
+    <!-- FAILURES -->
+    <section class="card card-fails">
+      <header class="card-header">
+        <span class="card-title">Inject failures</span>
+        <span class="card-sub">real-world simulation</span>
+      </header>
+      <div class="failures-grid">
+        <label class="fail-chip"><input type="checkbox" id="failProducer" /><span>📤 Producer 10%</span></label>
+        <label class="fail-chip"><input type="checkbox" id="failNetwork" /><span>📡 Network 15%</span></label>
+        <label class="fail-chip"><input type="checkbox" id="failAck" /><span>✉️ ACK 20%</span></label>
+        <label class="fail-chip"><input type="checkbox" id="failConsumer" /><span>💥 Crash 15%</span></label>
+      </div>
+    </section>
+
+    <!-- METRICS — HERO + MINI STATS -->
+    <section class="card card-metrics">
+      <div class="hero">
+        <div class="hero-side">
+          <span class="hero-tag">Expected</span>
+          <span class="hero-num" id="heroExpected">$ 0</span>
+        </div>
+        <div class="hero-divider">
+          <span class="hero-arrow" id="heroArrow">vs</span>
+          <span class="hero-delta" id="heroDelta">Δ $ 0</span>
+        </div>
+        <div class="hero-side hero-actual">
+          <span class="hero-tag">Actual in DB</span>
+          <span class="hero-num" id="heroActual">$ 0</span>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-stat"><span class="dot dot-blue"></span><b id="mLogical">0</b> sent</div>
+        <div class="mini-stat"><span class="dot dot-green"></span><b id="mDelivered">0</b> delivered</div>
+        <div class="mini-stat"><span class="dot dot-yellow"></span><b id="mDup">0</b> duplicated</div>
+        <div class="mini-stat"><span class="dot dot-red"></span><b id="mLost">0</b> lost</div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ========== LOG (CLOSED BY DEFAULT) ========== -->
+<details class="log-wrapper">
+  <summary>📜 Event log</summary>
+  <div id="log" class="log"></div>
+</details>
+
+<script src="simulator.js"></script>
+</body>
+</html>
