@@ -21,9 +21,9 @@
       <template v-if="store.scenarioConfig.showOutbox">
         <pipeline-node
           variant="outbox"
-          icon="📦"
-          :label="outboxLabel"
-          :desc="outboxDesc"
+          icon="🗄️"
+          label="SOURCE DB"
+          desc="business + outbox table"
           stat-label="pending"
           :stat-value="store.stats.outboxPending"
           stat-class="outbox-stat"
@@ -70,6 +70,22 @@
         stat-class="dlq-stat"
       />
 
+      <template v-if="store.scenarioConfig.showOutbox">
+        <pipeline-node
+          variant="relay"
+          :icon="relayIcon"
+          :label="relayLabel"
+          :desc="relayDesc"
+          stat-label="published"
+          :stat-value="store.stats.outboxPublished"
+          stat-class="outbox-stat"
+        />
+        <div class="relay-arrow">
+          <span class="relay-line">{{ relayLineLabel }}</span>
+          <span class="relay-tip">↓</span>
+        </div>
+      </template>
+
       <div ref="layerEl" class="msg-layer" />
     </div>
 
@@ -88,8 +104,11 @@ const store = useSimulatorStore()
 const stageEl = ref(null)
 const layerEl = ref(null)
 
-const outboxLabel = computed(() => store.outboxMode === 'cdc' ? 'CDC + OUTBOX' : 'OUTBOX + RELAY')
-const outboxDesc = computed(() => store.outboxMode === 'cdc' ? 'WAL streamed near-realtime' : 'Worker polls pending rows')
+const isCDC = computed(() => store.outboxMode === 'cdc')
+const relayIcon = computed(() => isCDC.value ? '⚡' : '🔄')
+const relayLabel = computed(() => isCDC.value ? 'DEBEZIUM / CDC' : 'POLLING WORKER')
+const relayDesc = computed(() => isCDC.value ? 'reads WAL near-realtime' : 'SELECT outbox @ 1.5s')
+const relayLineLabel = computed(() => isCDC.value ? 'WAL stream' : 'SELECT … WHERE pending')
 
 onMounted(() => {
   registerStage(stageEl.value)
@@ -140,7 +159,46 @@ onMounted(() => {
 
   &.outbox-mode {
     grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
-    gap: 4px;
+    grid-template-rows: auto auto 1fr;
+    gap: 4px 6px;
+
+    :deep(.node-producer),
+    :deep(.node-outbox),
+    :deep(.node-broker),
+    :deep(.node-consumer),
+    :deep(.node-db) { grid-row: 3; }
+    .arrow { grid-row: 3; }
+
+    :deep(.node-relay) {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .relay-arrow {
+      grid-column: 3;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px 0;
+    }
+    .relay-line {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--outbox);
+      font-weight: 700;
+      background: rgba(167, 139, 250, 0.12);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(167, 139, 250, 0.3);
+    }
+    .relay-tip {
+      color: var(--outbox);
+      font-size: 18px;
+      line-height: 1;
+    }
   }
 }
 

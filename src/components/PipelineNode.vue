@@ -26,7 +26,7 @@ const props = defineProps({
   variant: {
     type: String,
     required: true,
-    validator: (v) => ['producer', 'broker', 'consumer', 'db', 'dlq', 'outbox'].includes(v),
+    validator: (v) => ['producer', 'broker', 'consumer', 'db', 'dlq', 'outbox', 'relay'].includes(v),
   },
   icon: { type: String, required: true },
   label: { type: String, required: true },
@@ -65,6 +65,10 @@ onMounted(() => {
   &.node-db { border-color: var(--db); }
   &.node-dlq { border-color: var(--dlq); }
   &.node-outbox { border-color: var(--outbox); }
+  &.node-relay {
+    border-color: var(--outbox);
+    border-style: dashed;
+  }
 
   &.flash { animation: flash 0.6s ease; }
   &.crash { animation: crash 0.6s ease; }

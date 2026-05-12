@@ -8,6 +8,7 @@ const nodes = {
   db: null,
   dlq: null,
   outbox: null,
+  relay: null,
 }
 let stageEl = null
 let layerEl = null
@@ -27,8 +28,9 @@ function centerOf(name) {
   }
 }
 
-export function animateMsg(fromName, toName, label, cls = '', willLose = false) {
+export function animateMsg(fromName, toName, label, cls = '', willLose = false, speedMs = null) {
   const store = useSimulatorStore()
+  const speed = speedMs ?? store.speed
   return new Promise((resolve) => {
     if (!layerEl) return resolve()
     const msg = document.createElement('div')
@@ -38,7 +40,7 @@ export function animateMsg(fromName, toName, label, cls = '', willLose = false) 
     const to = centerOf(toName)
     msg.style.left = from.x + 'px'
     msg.style.top = from.y + 'px'
-    msg.style.transition = `all ${store.speed}ms cubic-bezier(0.4, 0, 0.2, 1)`
+    msg.style.transition = `all ${speed}ms cubic-bezier(0.4, 0, 0.2, 1)`
     layerEl.appendChild(msg)
 
     requestAnimationFrame(() => {
@@ -56,7 +58,7 @@ export function animateMsg(fromName, toName, label, cls = '', willLose = false) 
       })
     })
 
-    setTimeout(() => { msg.remove(); resolve() }, store.speed)
+    setTimeout(() => { msg.remove(); resolve() }, speed)
   })
 }
 

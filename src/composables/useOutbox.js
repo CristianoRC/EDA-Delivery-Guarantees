@@ -105,12 +105,18 @@ export function useOutbox() {
 
   async function publishRow(row) {
     row.attempts++
-    store.setPhase(`Relay → Broker: ${row.idempotencyKey} (attempt ${row.attempts})`)
-    store.flash('outbox')
-    store.stats.physicalSent++
-
     const cls = row.attempts > 1 ? 'dup' : ''
-    await animateMsg('outbox', 'broker', row.label, cls)
+    const halfSpeed = Math.max(300, Math.floor(store.speed / 2))
+    const relayKind = store.outboxMode === 'cdc' ? 'CDC' : 'Polling worker'
+
+    store.setPhase(`${relayKind}: reading ${row.idempotencyKey}`)
+    store.flash('outbox')
+    await animateMsg('outbox', 'relay', row.label, cls, false, halfSpeed)
+    store.flash('relay')
+
+    store.setPhase(`${relayKind} → Broker: ${row.idempotencyKey} (attempt ${row.attempts})`)
+    store.stats.physicalSent++
+    await animateMsg('relay', 'broker', row.label, cls, false, halfSpeed)
     store.flash('broker')
     log.push(`📨 Broker: received ${row.idempotencyKey}${row.attempts > 1 ? ` (republish #${row.attempts})` : ''}`, 'dim')
     store.stats.queue++
@@ -118,8 +124,8 @@ export function useOutbox() {
 
     const willCrash = store.fails.relayCrash && Math.random() < RELAY_CRASH_RATE
     if (willCrash) {
-      store.crash('outbox')
-      log.push(`💥 Relay crashed BEFORE marking ${row.idempotencyKey} as published — row stays pending, broker already has the message`, 'danger')
+      store.crash('relay')
+      log.push(`💥 ${relayKind} crashed BEFORE marking ${row.idempotencyKey} as published — row stays pending, broker already has the message`, 'danger')
     }
 
     store.stats.queue--

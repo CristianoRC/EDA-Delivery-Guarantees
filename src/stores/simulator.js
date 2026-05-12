@@ -55,6 +55,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     db: false,
     dlq: false,
     outbox: false,
+    relay: false,
   })
   const crashing = reactive({
     producer: false,
@@ -63,6 +64,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     db: false,
     dlq: false,
     outbox: false,
+    relay: false,
   })
 
   const scenarioConfig = computed(() => SCENARIOS[scenario.value])
