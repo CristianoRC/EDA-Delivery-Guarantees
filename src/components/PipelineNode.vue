@@ -9,7 +9,7 @@
   >
     <div class="node-icon">{{ icon }}</div>
     <div class="node-label">{{ label }}</div>
-    <div v-if="desc" class="node-desc">{{ desc }}</div>
+    <div class="node-desc" :class="{ 'is-placeholder': !desc }">{{ desc || ' ' }}</div>
     <div class="node-stat" :class="statClass">
       <span>{{ statLabel }}</span>
       <b>{{ statValue }}</b>
@@ -80,6 +80,10 @@ onMounted(() => {
   font-size: 10px;
   color: var(--text-dimmer);
   margin-top: -2px;
+  min-height: 1em;
+  line-height: 1;
+
+  &.is-placeholder { visibility: hidden; }
 }
 .node-stat {
   margin-top: 6px;
