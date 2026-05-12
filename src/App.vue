@@ -1,7 +1,6 @@
 <template>
   <v-app>
     <app-top-bar />
-    <tool-info-banner />
     <div class="main-layout">
       <app-side-bar />
       <simulation-stage />
