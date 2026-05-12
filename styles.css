@@ -50,7 +50,8 @@ body { display: flex; flex-direction: column; }
 }
 
 .brand { display: flex; align-items: center; gap: 12px; }
-.logo { font-size: 24px; }
+.logo { display: inline-flex; align-items: center; }
+.logo svg { height: 24px; width: auto; display: block; }
 .brand h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.2px; }
 .subtitle { margin: 1px 0 0 0; font-size: 11px; color: var(--text-dim); }
 
