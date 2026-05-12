@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#111a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="80" y="140" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="64" font-weight="800" fill="#e2e8f0">
+    Delivery Guarantees
+  </text>
+  <text x="80" y="215" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="48" font-weight="600" fill="url(#accent)">
+    Event-Driven Architecture Simulator
+  </text>
+
+  <!-- Subtitle -->
+  <text x="80" y="275" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="26" font-weight="400" fill="#94a3b8">
+    At-most-once · At-least-once · Exactly-once · Idempotency · DLQ
+  </text>
+
+  <!-- Flow diagram: Producer -> Broker -> Consumer -> DB -->
+  <g transform="translate(80, 360)" filter="url(#shadow)">
+    <!-- Producer -->
+    <rect x="0" y="0" width="220" height="100" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="3"/>
+    <text x="110" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Producer</text>
+    <text x="110" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">publishes events</text>
+
+    <!-- Arrow -->
+    <line x1="225" y1="50" x2="270" y2="50" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="265,42 280,50 265,58" fill="#a78bfa"/>
+
+    <!-- Broker -->
+    <rect x="285" y="0" width="220" height="100" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="3"/>
+    <text x="395" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Broker</text>
+    <text x="395" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">queue / topic</text>
+
+    <!-- Arrow -->
+    <line x1="510" y1="50" x2="555" y2="50" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="550,42 565,50 550,58" fill="#a78bfa"/>
+
+    <!-- Consumer -->
+    <rect x="570" y="0" width="220" height="100" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="3"/>
+    <text x="680" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Consumer</text>
+    <text x="680" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">idempotent?</text>
+
+    <!-- Arrow -->
+    <line x1="795" y1="50" x2="840" y2="50" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="835,42 850,50 835,58" fill="#a78bfa"/>
+
+    <!-- DB -->
+    <rect x="855" y="0" width="220" height="100" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="3"/>
+    <text x="965" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Database</text>
+    <text x="965" y="78" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">expected = actual?</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="80" y="570" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="500" fill="#64748b">
+    Azure Service Bus · Event Hubs · Event Grid · Storage Queue · RabbitMQ · Kafka
+  </text>
+  <text x="1120" y="570" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="600" fill="#38bdf8">
+    eda.cristianoprogramador.com
+  </text>
+</svg>

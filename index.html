@@ -3,11 +3,134 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Delivery Guarantees Simulator — EDA</title>
+<meta name="theme-color" content="#0b1220" />
+<meta name="color-scheme" content="dark" />
+
+<title>Delivery Guarantees Simulator — Event-Driven Architecture (EDA)</title>
+<meta name="description" content="Interactive, browser-based simulator that visualizes message delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency, and Dead Letter Queue (DLQ). Models Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Kafka." />
+<meta name="keywords" content="event-driven architecture, EDA, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, message broker, Azure Service Bus, Azure Event Hubs, Azure Event Grid, Azure Storage Queue, RabbitMQ, Apache Kafka, distributed systems, simulator, teaching tool" />
+<meta name="author" content="Cristiano Cunha" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="googlebot" content="index, follow" />
+
+<link rel="canonical" href="https://eda.cristianoprogramador.com/" />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Delivery Guarantees Simulator" />
+<meta property="og:title" content="Delivery Guarantees Simulator — Event-Driven Architecture" />
+<meta property="og:description" content="Interactive simulator for teaching EDA delivery guarantees: at-most-once, at-least-once, exactly-once, idempotency and DLQ across Azure Service Bus, Event Hubs, RabbitMQ and Kafka." />
+<meta property="og:url" content="https://eda.cristianoprogramador.com/" />
+<meta property="og:image" content="https://eda.cristianoprogramador.com/og-image.svg" />
+<meta property="og:image:type" content="image/svg+xml" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Delivery Guarantees Simulator: Producer → Broker → Consumer → DB visual flow" />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Delivery Guarantees Simulator — EDA" />
+<meta name="twitter:description" content="Visual, browser-based simulator for at-most-once, at-least-once, exactly-once, idempotency and DLQ. Built for teaching Event-Driven Architecture." />
+<meta name="twitter:image" content="https://eda.cristianoprogramador.com/og-image.svg" />
+<meta name="twitter:image:alt" content="Delivery Guarantees Simulator preview" />
+
+<!-- Icons & manifest -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2338bdf8'/><stop offset='1' stop-color='%23a78bfa'/></linearGradient></defs><rect width='64' height='64' rx='12' fill='%230b1220'/><line x1='2' y1='32' x2='9' y2='32' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/><rect x='12' y='18' width='40' height='28' rx='3' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linejoin='round'/><path d='M12 22 L32 36 L52 22' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/><line x1='55' y1='32' x2='62' y2='32' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/></svg>" />
+<link rel="apple-touch-icon" href="./icon.svg" />
+<link rel="manifest" href="./manifest.webmanifest" />
+
+<!-- Performance hints -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+<!-- Structured data: SoftwareApplication + LearningResource -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Delivery Guarantees Simulator",
+      "applicationCategory": "EducationalApplication",
+      "applicationSubCategory": "Distributed Systems Simulator",
+      "operatingSystem": "Any (Web Browser)",
+      "url": "https://eda.cristianoprogramador.com/",
+      "description": "Interactive simulator that visualizes message delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Apache Kafka.",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Cristiano Cunha",
+        "url": "https://github.com/CristianoRC"
+      },
+      "codeRepository": "https://github.com/CristianoRC/EDA-Delivery-Guarantees",
+      "license": "https://github.com/CristianoRC/EDA-Delivery-Guarantees/blob/main/README.md",
+      "keywords": "event-driven architecture, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, Azure Service Bus, RabbitMQ, Kafka"
+    },
+    {
+      "@type": "LearningResource",
+      "name": "Delivery Guarantees in Event-Driven Architecture",
+      "description": "Hands-on classroom simulator covering at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue patterns across mainstream message brokers.",
+      "url": "https://eda.cristianoprogramador.com/",
+      "educationalLevel": "Higher Education / Professional Development",
+      "learningResourceType": "Interactive Simulator",
+      "inLanguage": "en",
+      "teaches": [
+        "At-most-once delivery semantics",
+        "At-least-once delivery and retry behavior",
+        "Exactly-once semantics with broker-side deduplication",
+        "Consumer-side idempotency",
+        "Dead Letter Queue (DLQ) handling for poison messages",
+        "Trade-offs across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Apache Kafka"
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <div id="app"></div>
+
+<noscript>
+  <main style="max-width:760px;margin:40px auto;padding:24px;font-family:system-ui,sans-serif;color:#e2e8f0;background:#0b1220;border-radius:12px;line-height:1.6">
+    <h1>Delivery Guarantees Simulator — Event-Driven Architecture</h1>
+    <p>
+      This is an interactive, browser-based simulator built for teaching
+      <strong>delivery guarantees in Event-Driven Architecture (EDA)</strong>.
+      It visualizes the full <em>Producer → Broker → Consumer → Database</em> flow
+      with animated messages, injectable failures and live metrics.
+    </p>
+    <h2>Scenarios covered</h2>
+    <ul>
+      <li><strong>At-most-once</strong> — fire-and-forget; messages can be lost.</li>
+      <li><strong>At-least-once</strong> — retry until ACK; messages can be duplicated. Toggle consumer-side idempotency to see the bug appear and disappear.</li>
+      <li><strong>Exactly-once</strong> — broker-side deduplication and transactional commits.</li>
+      <li><strong>Dead Letter Queue (DLQ)</strong> — poison messages that exceed MaxDeliveryCount are dead-lettered instead of retried forever.</li>
+    </ul>
+    <h2>Brokers modeled</h2>
+    <ul>
+      <li>Azure Service Bus (PeekLock, duplicate detection, native DLQ)</li>
+      <li>Azure Service Bus with Sessions (FIFO per session)</li>
+      <li>Azure Event Hubs (Kafka-like, no native DLQ)</li>
+      <li>Azure Event Grid (HTTP pub/sub, dead-letter to Blob Storage)</li>
+      <li>Azure Storage Queue (visibility timeout)</li>
+      <li>RabbitMQ (publisher confirms, manual ack, DLX)</li>
+      <li>Apache Kafka (idempotent producer + transactions; dead-letter topic pattern)</li>
+    </ul>
+    <p>
+      <strong>JavaScript is required</strong> to run the simulator. Please enable it,
+      or view the source on
+      <a href="https://github.com/CristianoRC/EDA-Delivery-Guarantees">GitHub</a>.
+    </p>
+  </main>
+</noscript>
+
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>

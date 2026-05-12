@@ -1,0 +1,8 @@
+# Delivery Guarantees Simulator — https://eda.cristianoprogramador.com
+User-agent: *
+Allow: /
+
+# Block crawling of build assets (no SEO value, save crawl budget)
+Disallow: /assets/
+
+Sitemap: https://eda.cristianoprogramador.com/sitemap.xml

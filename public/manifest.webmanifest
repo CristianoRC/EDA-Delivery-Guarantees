@@ -1,0 +1,21 @@
+{
+  "name": "Delivery Guarantees Simulator — EDA",
+  "short_name": "EDA Delivery",
+  "description": "Interactive simulator for delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "lang": "en",
+  "categories": ["education", "developer", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}
