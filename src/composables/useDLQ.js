@@ -6,13 +6,14 @@ export function useDLQ() {
   const store = useSimulatorStore()
   const log = useLogStore()
 
-  async function sendDLQMessage() {
+  async function sendDLQMessage({ forcePoison = false } = {}) {
     store.stats.logicalSent++
     const logicalId = store.nextMsgId()
     const id = `msg-${logicalId}`
-    const isPoison = Math.random() * 100 < store.poisonRate
+    const isPoison = forcePoison || Math.random() * 100 < store.poisonRate
     const label = `${isPoison ? '☠️' : '📩'} #${logicalId}`
-    log.push(`📤 Producer: published ${id}${isPoison ? ' (POISON)' : ''}`, 'info')
+    const reason = forcePoison ? ' (POISON — invalid payload)' : (isPoison ? ' (POISON)' : '')
+    log.push(`📤 Producer: published ${id}${reason}`, 'info')
     await dlqAttempt(id, label, isPoison, 1)
   }
 
@@ -70,5 +71,9 @@ export function useDLQ() {
     return dlqAttempt(id, label, isPoison, deliveryCount + 1)
   }
 
-  return { sendDLQMessage }
+  function sendPoisonMessage() {
+    return sendDLQMessage({ forcePoison: true })
+  }
+
+  return { sendDLQMessage, sendPoisonMessage }
 }

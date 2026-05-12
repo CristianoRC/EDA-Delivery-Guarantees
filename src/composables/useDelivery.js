@@ -166,5 +166,13 @@ export function useDelivery() {
     }
   }
 
-  return { sendLogicalMessage, sendBatch, chaosBurst }
+  function sendPoisonMessage() {
+    if (!store.isDLQ) {
+      log.push('⚠️ Poison messages only work in the DLQ scenario', 'warn')
+      return
+    }
+    return dlq.sendPoisonMessage()
+  }
+
+  return { sendLogicalMessage, sendBatch, chaosBurst, sendPoisonMessage }
 }
