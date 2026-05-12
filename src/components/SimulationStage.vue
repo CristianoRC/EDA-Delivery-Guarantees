@@ -106,9 +106,9 @@ const layerEl = ref(null)
 
 const isCDC = computed(() => store.outboxMode === 'cdc')
 const relayIcon = computed(() => isCDC.value ? '⚡' : '🔄')
-const relayLabel = computed(() => isCDC.value ? 'DEBEZIUM / CDC' : 'POLLING WORKER')
-const relayDesc = computed(() => isCDC.value ? 'reads WAL near-realtime' : 'SELECT outbox @ 1.5s')
-const relayLineLabel = computed(() => isCDC.value ? 'WAL stream' : 'SELECT … WHERE pending')
+const relayLabel = computed(() => isCDC.value ? 'CDC CONNECTOR' : 'POLLING WORKER')
+const relayDesc = computed(() => isCDC.value ? 'tails the transaction log' : 'SELECT outbox @ 1.5s')
+const relayLineLabel = computed(() => isCDC.value ? 'tx-log stream' : 'SELECT … WHERE pending')
 
 onMounted(() => {
   registerStage(stageEl.value)

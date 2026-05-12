@@ -119,7 +119,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   function setOutboxMode(val) {
     outboxMode.value = val
-    log.push(`🛰️ Outbox relay: ${val === 'cdc' ? 'CDC (Change Data Capture)' : 'Polling worker'}`, 'info')
+    log.push(`🛰️ Outbox relay: ${val === 'cdc' ? 'CDC — tails the DB transaction log' : 'Polling — SELECT outbox at fixed interval'}`, 'info')
   }
 
   function isToolSupported(toolId) {

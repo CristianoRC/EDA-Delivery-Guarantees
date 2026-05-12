@@ -86,7 +86,7 @@ export function useOutbox() {
     while (store.isOutbox && store.outboxRows.length > 0) {
       const row = store.outboxRows[0]
       store.setPhase(`CDC: streaming change for ${row.idempotencyKey}`)
-      log.push(`🛰️ CDC: WAL change captured for ${row.idempotencyKey}`, 'info')
+      log.push(`⚡ CDC: tx-log change captured for ${row.idempotencyKey}`, 'info')
       const crashed = await publishRow(row)
       if (crashed) break
       removeRow(row)

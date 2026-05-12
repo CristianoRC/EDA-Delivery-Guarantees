@@ -80,9 +80,9 @@
           <template v-if="store.outboxMode === 'polling'">
             background worker runs <code>SELECT … WHERE published_at IS NULL</code> every ~1.5s and publishes the batch. Simple, but adds DB load and latency.
           </template>
-          <strong v-else>CDC:</strong>
+          <strong v-else>CDC (Change Data Capture):</strong>
           <template v-if="store.outboxMode === 'cdc'">
-            connector (Debezium / SQL Server CT) streams changes from the WAL near-realtime — no polling load, lower latency.
+            a connector tails the database's transaction log and emits a change event for every row inserted into the outbox — no polling, near-realtime, no extra DB load.
           </template>
         </span>
       </div>
