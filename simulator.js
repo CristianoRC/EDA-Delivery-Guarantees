@@ -1,5 +1,5 @@
 // ============================================================
-// Simulador de Delivery Guarantees em EDA — Azure + RabbitMQ
+// Delivery Guarantees Simulator — Azure + RabbitMQ + Kafka
 // ============================================================
 
 const TOOLS = {
@@ -7,36 +7,36 @@ const TOOLS = {
     name: "Azure Service Bus",
     brokerLabel: "SERVICE BUS",
     brokerDesc: "Queue / Topic",
-    desc: "<strong>Padrão:</strong> at-least-once com <code>PeekLock</code> + <code>Complete()</code>. <strong>Exactly-once</strong> via <code>RequiresDuplicateDetection=true</code> (janela de até 7 dias) usando <code>MessageId</code>. <strong>Retry</strong> + <strong>Dead-Letter Queue</strong> automática após N falhas.",
+    desc: "<strong>Default:</strong> at-least-once with <code>PeekLock</code> + <code>Complete()</code>. <strong>Exactly-once</strong> via <code>RequiresDuplicateDetection=true</code> (window up to 7 days) using <code>MessageId</code>. <strong>Retry</strong> + automatic <strong>Dead-Letter Queue</strong> after N failures.",
     defaultMode: "at-least-once",
     supports: {
-      "at-most-once": "Modo ReceiveAndDelete (sem PeekLock): mensagem é removida antes de processar — se a app crashar, perde.",
-      "at-least-once": "PeekLock + Complete() / Abandon() — mais comum. Retries automáticos pelo broker.",
-      "exactly-once": "RequiresDuplicateDetection=true com MessageId. Janela de dedup configurável (até 7 dias).",
+      "at-most-once": "ReceiveAndDelete mode (no PeekLock): message is removed before processing — if app crashes, it's lost.",
+      "at-least-once": "PeekLock + Complete() / Abandon() — most common. Broker handles automatic retries.",
+      "exactly-once": "RequiresDuplicateDetection=true with MessageId. Configurable dedup window (up to 7 days).",
     },
     suggestIdempotency: true,
   },
   "servicebus-sessions": {
     name: "Azure Service Bus + Sessions",
     brokerLabel: "SB SESSIONS",
-    brokerDesc: "FIFO por SessionId",
-    desc: "<strong>Sessions</strong> garantem ordem FIFO por <code>SessionId</code> (ex: por cliente). Combine com <code>RequiresDuplicateDetection</code> para exactly-once ordenado. Ideal para saga/workflow por entidade.",
+    brokerDesc: "FIFO per SessionId",
+    desc: "<strong>Sessions</strong> guarantee FIFO order per <code>SessionId</code> (e.g. per customer). Combine with <code>RequiresDuplicateDetection</code> for ordered exactly-once. Ideal for sagas/workflows per entity.",
     defaultMode: "exactly-once",
     supports: {
-      "at-least-once": "Sessões garantem FIFO mas o consumer pode reprocessar se crashar antes do Complete().",
-      "exactly-once": "FIFO + duplicate detection juntos: a opção mais forte do Service Bus.",
+      "at-least-once": "Sessions guarantee FIFO but the consumer can reprocess if it crashes before Complete().",
+      "exactly-once": "FIFO + duplicate detection combined: the strongest Service Bus option.",
     },
     suggestIdempotency: false,
   },
   eventhubs: {
     name: "Azure Event Hubs",
     brokerLabel: "EVENT HUBS",
-    brokerDesc: "Partições + Offsets",
-    desc: "<strong>Padrão:</strong> at-least-once (similar ao Kafka). Particionado por <code>PartitionKey</code>. <strong>Idempotent Producer</strong> disponível. Consumer faz <code>checkpoint</code> manual após processar. Sem dedup nativo — idempotência no consumer é <strong>obrigatória</strong>.",
+    brokerDesc: "Partitions + Offsets",
+    desc: "<strong>Default:</strong> at-least-once (similar to Kafka). Partitioned by <code>PartitionKey</code>. <strong>Idempotent Producer</strong> available. Consumer does manual <code>checkpoint</code> after processing. No native dedup — consumer-side idempotency is <strong>mandatory</strong>.",
     defaultMode: "at-least-once",
     supports: {
-      "at-most-once": "Checkpoint ANTES de processar: se crashar, evento já marcou como lido — pode perder.",
-      "at-least-once": "Checkpoint DEPOIS de processar (padrão). Pode reprocessar em caso de falha.",
+      "at-most-once": "Checkpoint BEFORE processing: if it crashes, event is already marked as read — may be lost.",
+      "at-least-once": "Checkpoint AFTER processing (default). May reprocess on failure.",
     },
     suggestIdempotency: true,
   },
@@ -44,22 +44,22 @@ const TOOLS = {
     name: "Azure Event Grid",
     brokerLabel: "EVENT GRID",
     brokerDesc: "Pub/Sub HTTP",
-    desc: "<strong>Padrão:</strong> at-least-once com retry exponencial (24h por padrão) + Dead-Letter para Blob Storage. <strong>Sem dedup nativo</strong> — pode entregar duplicatas em retries. Idempotência no consumer é <strong>obrigatória</strong>. Schema CloudEvents 1.0.",
+    desc: "<strong>Default:</strong> at-least-once with exponential retry (24h by default) + Dead-Letter to Blob Storage. <strong>No native dedup</strong> — duplicates can occur on retries. Consumer-side idempotency is <strong>mandatory</strong>. CloudEvents 1.0 schema.",
     defaultMode: "at-least-once",
     supports: {
-      "at-least-once": "Único modo: Event Grid sempre tenta entregar com retry — não há opção de fire-and-forget nem dedup nativo.",
+      "at-least-once": "Only mode: Event Grid always retries until success — no fire-and-forget, no native dedup.",
     },
     suggestIdempotency: true,
   },
   storagequeue: {
     name: "Azure Storage Queue",
     brokerLabel: "STORAGE QUEUE",
-    brokerDesc: "Fila simples",
-    desc: "<strong>Padrão:</strong> at-least-once. Mais simples e barato que Service Bus. Sem ordem garantida, sem dedup, sem sessions. <code>VisibilityTimeout</code> esconde a msg enquanto o consumer processa. Idempotência no consumer é <strong>obrigatória</strong>.",
+    brokerDesc: "Simple queue",
+    desc: "<strong>Default:</strong> at-least-once. Simpler and cheaper than Service Bus. No ordering, no dedup, no sessions. <code>VisibilityTimeout</code> hides the message while the consumer processes. Consumer-side idempotency is <strong>mandatory</strong>.",
     defaultMode: "at-least-once",
     supports: {
-      "at-most-once": "DeleteMessage ANTES de processar: rápido mas perde em falha.",
-      "at-least-once": "Get + processa + DeleteMessage. VisibilityTimeout faz a msg reaparecer se não houver delete.",
+      "at-most-once": "DeleteMessage BEFORE processing: fast but loses on failure.",
+      "at-least-once": "Get + process + DeleteMessage. VisibilityTimeout makes the message reappear if no delete is sent.",
     },
     suggestIdempotency: true,
   },
@@ -67,24 +67,24 @@ const TOOLS = {
     name: "RabbitMQ",
     brokerLabel: "RABBITMQ",
     brokerDesc: "Exchange + Queue",
-    desc: "<strong>Padrão:</strong> at-least-once com <code>publisher confirms</code> (producer) + <code>manual ack</code> (consumer). <strong>Exactly-once NÃO é nativo</strong> — exige idempotência. Suporta <strong>DLX</strong> (Dead Letter Exchange) e <code>quorum queues</code> para HA.",
+    desc: "<strong>Default:</strong> at-least-once with <code>publisher confirms</code> (producer) + <code>manual ack</code> (consumer). <strong>Exactly-once is NOT native</strong> — requires consumer-side idempotency. Supports <strong>DLX</strong> (Dead Letter Exchange) and <code>quorum queues</code> for HA.",
     defaultMode: "at-least-once",
     supports: {
-      "at-most-once": "autoAck=true: broker descarta a msg ao enviar, antes do consumer processar.",
-      "at-least-once": "autoAck=false + basicAck() manual após processar. Modo recomendado.",
+      "at-most-once": "autoAck=true: broker discards the message on send, before the consumer processes it.",
+      "at-least-once": "autoAck=false + manual basicAck() after processing. Recommended mode.",
     },
     suggestIdempotency: true,
   },
   kafka: {
     name: "Apache Kafka",
     brokerLabel: "KAFKA",
-    brokerDesc: "Tópicos + Partições",
-    desc: "<strong>Padrão:</strong> at-least-once. <strong>Exactly-once</strong> via produtor idempotente (<code>enable.idempotence=true</code>) + transações (<code>transactional.id</code>) + <code>isolation.level=read_committed</code>. Consumer commit offset manual.",
+    brokerDesc: "Topics + Partitions",
+    desc: "<strong>Default:</strong> at-least-once. <strong>Exactly-once</strong> via idempotent producer (<code>enable.idempotence=true</code>) + transactions (<code>transactional.id</code>) + <code>isolation.level=read_committed</code>. Consumer commits offsets manually.",
     defaultMode: "at-least-once",
     supports: {
-      "at-most-once": "enable.auto.commit=true com commit ANTES do processamento. Perde em crash.",
-      "at-least-once": "Commit manual após processar (padrão na maioria dos sistemas).",
-      "exactly-once": "Idempotent producer + transações + read_committed no consumer. EOS (Exactly-Once Semantics).",
+      "at-most-once": "enable.auto.commit=true with commit BEFORE processing. Loses on crash.",
+      "at-least-once": "Manual commit after processing (default in most systems).",
+      "exactly-once": "Idempotent producer + transactions + read_committed consumer. EOS (Exactly-Once Semantics).",
     },
     suggestIdempotency: true,
   },
@@ -97,19 +97,14 @@ const MODE_LABELS = {
 };
 
 // ============================================================
-// Estado
+// State
 // ============================================================
 const state = {
   mode: "at-least-once",
   tool: "servicebus",
   idempotency: false,
-  speed: 1400, // ms por animação
-  fails: {
-    producer: false,
-    network: false,
-    ack: false,
-    consumer: false,
-  },
+  speed: 1400,
+  fails: { producer: false, network: false, ack: false, consumer: false },
   startTime: Date.now(),
   logicalSent: 0,
   physicalSent: 0,
@@ -151,16 +146,15 @@ const updateStats = () => {
   $("statSent").textContent = state.physicalSent;
   $("statQueue").textContent = state.queue;
   $("statProcessed").textContent = state.processed;
-  $("statBalance").textContent = `R$ ${state.balance}`;
+  $("statBalance").textContent = `$ ${state.balance}`;
   $("mLogical").textContent = state.logicalSent;
   $("mDelivered").textContent = state.delivered;
   $("mDup").textContent = state.duplicated;
   $("mLost").textContent = state.lost;
 
-  // Hero
-  $("heroExpected").textContent = `R$ ${state.expected}`;
+  $("heroExpected").textContent = `$ ${state.expected}`;
   const actualEl = $("heroActual");
-  actualEl.textContent = `R$ ${state.balance}`;
+  actualEl.textContent = `$ ${state.balance}`;
   actualEl.classList.remove("warn", "danger");
 
   const diff = state.balance - state.expected;
@@ -172,16 +166,16 @@ const updateStats = () => {
     deltaEl.textContent = "Δ —";
     arrowEl.textContent = "vs";
   } else if (diff === 0) {
-    deltaEl.textContent = "Δ R$ 0 • OK";
+    deltaEl.textContent = "Δ $ 0 • OK";
     deltaEl.classList.add("ok");
     arrowEl.textContent = "=";
   } else if (diff > 0) {
-    deltaEl.textContent = `Δ +R$ ${diff} • inflado`;
+    deltaEl.textContent = `Δ +$ ${diff} • inflated`;
     deltaEl.classList.add("warn");
     actualEl.classList.add("warn");
     arrowEl.textContent = "↑";
   } else {
-    deltaEl.textContent = `Δ R$ ${diff} • perdas`;
+    deltaEl.textContent = `Δ $ ${diff} • lost`;
     deltaEl.classList.add("danger");
     actualEl.classList.add("danger");
     arrowEl.textContent = "↓";
@@ -249,7 +243,7 @@ const animateMsg = (fromId, toId, label, cls = "", willLose = false) => {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ============================================================
-// Lógica de entrega
+// Delivery logic
 // ============================================================
 const MAX_RETRIES = 3;
 
@@ -258,8 +252,8 @@ async function sendLogicalMessage(amount = 100) {
   state.expected += amount;
   const logicalId = ++state.msgIdCounter;
   const idempotencyKey = `tx-${logicalId}`;
-  const label = `R$${amount} #${logicalId}`;
-  log(`📤 Producer: nova transferência ${idempotencyKey} de R$${amount}`, "info");
+  const label = `$${amount} #${logicalId}`;
+  log(`📤 Producer: new transfer ${idempotencyKey} of $${amount}`, "info");
   updateStats();
   await attemptDelivery(logicalId, idempotencyKey, amount, label, 0);
 }
@@ -267,11 +261,11 @@ async function sendLogicalMessage(amount = 100) {
 async function attemptDelivery(logicalId, idempotencyKey, amount, label, retryCount) {
   const mode = state.mode;
 
-  setPhase(`Producer publicando ${idempotencyKey}...`);
+  setPhase(`Producer publishing ${idempotencyKey}...`);
   flash("nodeProducer");
 
   if (state.fails.producer && Math.random() < 0.10) {
-    log(`❌ Producer ${idempotencyKey}: falha ao publicar`, "danger");
+    log(`❌ Producer ${idempotencyKey}: publish failed`, "danger");
     if (mode === "at-most-once") {
       state.lost++; updateStats(); return;
     }
@@ -289,11 +283,11 @@ async function attemptDelivery(logicalId, idempotencyKey, amount, label, retryCo
   const networkLost = state.fails.network && Math.random() < 0.15;
   const cls = retryCount > 0 ? "retry" : "";
 
-  setPhase(`Trafegando: Producer → Broker`);
+  setPhase(`In transit: Producer → Broker`);
   await animateMsg("nodeProducer", "nodeBroker", label, cls, networkLost);
 
   if (networkLost) {
-    log(`📡 Rede: pacote ${idempotencyKey} perdido a caminho do broker`, "danger");
+    log(`📡 Network: packet ${idempotencyKey} lost on the way to broker`, "danger");
     if (mode === "at-most-once") {
       state.lost++; updateStats(); return;
     }
@@ -305,36 +299,33 @@ async function attemptDelivery(logicalId, idempotencyKey, amount, label, retryCo
     state.lost++; updateStats(); return;
   }
 
-  // Broker recebe
-  setPhase(`Broker recebeu ${idempotencyKey}`);
+  setPhase(`Broker received ${idempotencyKey}`);
   flash("nodeBroker");
 
   if (mode === "exactly-once" && state.brokerSeen.has(idempotencyKey)) {
-    log(`🛡️ Broker: duplicate detection descartou ${idempotencyKey}`, "info");
+    log(`🛡️ Broker: duplicate detection discarded ${idempotencyKey}`, "info");
     return;
   }
   state.brokerSeen.add(idempotencyKey);
   state.queue++;
-  log(`📨 Broker: enfileirou ${idempotencyKey}`, "dim");
+  log(`📨 Broker: enqueued ${idempotencyKey}`, "dim");
   updateStats();
 
   await sleep(300);
 
-  // Broker → Consumer
   state.queue--;
   setPhase(`Broker → Consumer`);
   await animateMsg("nodeBroker", "nodeConsumer", label, cls);
   flash("nodeConsumer");
   updateStats();
 
-  // Consumer processa
-  setPhase(`Consumer processando ${idempotencyKey}`);
-  log(`⚙️ Consumer: processando ${idempotencyKey}`, "dim");
+  setPhase(`Consumer processing ${idempotencyKey}`);
+  log(`⚙️ Consumer: processing ${idempotencyKey}`, "dim");
   state.processed++;
 
   const isDuplicate = state.processedKeys.has(idempotencyKey);
   if (state.idempotency && isDuplicate) {
-    log(`🛡️ Consumer: ${idempotencyKey} já processada — descartada (idempotência)`, "ok");
+    log(`🛡️ Consumer: ${idempotencyKey} already processed — discarded (idempotency)`, "ok");
     state.duplicated++;
     updateStats();
     await sleep(200);
@@ -346,19 +337,19 @@ async function attemptDelivery(logicalId, idempotencyKey, amount, label, retryCo
   state.delivered++;
   if (isDuplicate && !state.idempotency) {
     state.duplicated++;
-    log(`⚠️ Consumer: aplicou ${idempotencyKey} DE NOVO (sem idempotência) → saldo R$${state.balance}`, "warn");
+    log(`⚠️ Consumer: applied ${idempotencyKey} AGAIN (no idempotency) → balance $${state.balance}`, "warn");
   } else {
-    log(`✅ Consumer: aplicou ${idempotencyKey} → saldo R$${state.balance}`, "ok");
+    log(`✅ Consumer: applied ${idempotencyKey} → balance $${state.balance}`, "ok");
   }
   flash("nodeDb");
   updateStats();
 
   if (state.fails.consumer && Math.random() < 0.15) {
     crash("nodeConsumer");
-    log(`💥 Consumer crashou após processar ${idempotencyKey} (ACK NÃO enviado!)`, "danger");
+    log(`💥 Consumer crashed after processing ${idempotencyKey} (ACK NOT sent!)`, "danger");
     if (mode === "at-most-once") return;
-    setPhase(`Visibility timeout: broker reentregando...`);
-    log(`⏰ Broker: visibility timeout, reentregando ${idempotencyKey}`, "warn");
+    setPhase(`Visibility timeout: broker redelivering...`);
+    log(`⏰ Broker: visibility timeout, redelivering ${idempotencyKey}`, "warn");
     await sleep(500);
     return redeliverFromBroker(logicalId, idempotencyKey, amount, label);
   }
@@ -369,27 +360,27 @@ async function attemptDelivery(logicalId, idempotencyKey, amount, label, retryCo
 
 async function sendAck(idempotencyKey, label, mode, logicalId, amount) {
   const ackLost = state.fails.ack && Math.random() < 0.20;
-  setPhase(`Consumer enviando ACK...`);
+  setPhase(`Consumer sending ACK...`);
   await animateMsg("nodeConsumer", "nodeBroker", "ACK", "ack", ackLost);
 
   if (ackLost) {
-    log(`📡 Rede: ACK de ${idempotencyKey} perdido!`, "danger");
+    log(`📡 Network: ACK for ${idempotencyKey} lost!`, "danger");
     if (mode === "at-most-once") return;
-    log(`⏰ Broker: ACK ausente, reentregando ${idempotencyKey}`, "warn");
+    log(`⏰ Broker: missing ACK, redelivering ${idempotencyKey}`, "warn");
     await sleep(400);
     return redeliverFromBroker(logicalId, idempotencyKey, amount, label);
   }
-  log(`✔️ Broker: ACK recebido, commit/complete em ${idempotencyKey}`, "ok");
+  log(`✔️ Broker: ACK received, commit/complete on ${idempotencyKey}`, "ok");
 }
 
 async function redeliverFromBroker(logicalId, idempotencyKey, amount, label) {
-  setPhase(`Broker → Consumer (reentrega)`);
+  setPhase(`Broker → Consumer (redelivery)`);
   await animateMsg("nodeBroker", "nodeConsumer", label, "dup");
   flash("nodeConsumer");
 
   const isDuplicate = state.processedKeys.has(idempotencyKey);
   if (state.idempotency && isDuplicate) {
-    log(`🛡️ Consumer: reentrega de ${idempotencyKey} descartada (idempotência)`, "ok");
+    log(`🛡️ Consumer: redelivery of ${idempotencyKey} discarded (idempotency)`, "ok");
     state.duplicated++;
     updateStats();
     await sleep(200);
@@ -401,9 +392,9 @@ async function redeliverFromBroker(logicalId, idempotencyKey, amount, label) {
   state.delivered++;
   if (isDuplicate) {
     state.duplicated++;
-    log(`⚠️ Consumer: reaplicou ${idempotencyKey} (sem idempotência) → saldo R$${state.balance}`, "warn");
+    log(`⚠️ Consumer: reapplied ${idempotencyKey} (no idempotency) → balance $${state.balance}`, "warn");
   } else {
-    log(`✅ Consumer: aplicou ${idempotencyKey} → saldo R$${state.balance}`, "ok");
+    log(`✅ Consumer: applied ${idempotencyKey} → balance $${state.balance}`, "ok");
   }
   flash("nodeDb");
   updateStats();
@@ -423,10 +414,9 @@ function reset() {
   state.brokerSeen.clear();
   $("log").innerHTML = "";
   $("msgLayer").innerHTML = "";
-  setPhase("Pronto");
+  setPhase("Ready");
   updateStats();
-  log("🔄 Simulação reiniciada", "info");
-  updateExplainer();
+  log("🔄 Simulation reset", "info");
 }
 
 function applyTool() {
@@ -435,7 +425,7 @@ function applyTool() {
   $("brokerLabel").textContent = t.brokerLabel;
   $("brokerDesc").textContent = t.brokerDesc;
 
-  // Atualiza disponibilidade das abas
+  // Enable/disable mode tabs based on what this tool supports
   document.querySelectorAll(".mode-tab").forEach((tab) => {
     const mode = tab.dataset.mode;
     const supported = t.supports.hasOwnProperty(mode);
@@ -445,7 +435,7 @@ function applyTool() {
       tab.title = t.supports[mode];
       tab.removeAttribute("aria-disabled");
     } else {
-      tab.title = `${t.name} não suporta ${MODE_LABELS[mode]} nativamente.`;
+      tab.title = `${t.name} does not natively support ${MODE_LABELS[mode]}.`;
       tab.setAttribute("aria-disabled", "true");
     }
   });
@@ -455,19 +445,20 @@ function applyTool() {
   state.idempotency = t.suggestIdempotency;
   $("idemLabel").textContent = state.idempotency ? "ON" : "OFF";
   $("idemLabel").style.color = state.idempotency ? "var(--ok)" : "var(--text-dim)";
-  log(`🔧 Ferramenta: ${t.name} • garantias suportadas: ${Object.keys(t.supports).map(m => MODE_LABELS[m]).join(", ")} • padrão: ${MODE_LABELS[t.defaultMode]}`, "info");
+  log(`🔧 Tool: ${t.name} • supported: ${Object.keys(t.supports).map(m => MODE_LABELS[m]).join(", ")} • default: ${MODE_LABELS[t.defaultMode]}`, "info");
 }
-
-function updateExplainer() { /* removido — info agora vive no tool-info bar */ }
 
 // Bindings
 document.querySelectorAll(".mode-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
+    if (tab.classList.contains("disabled")) {
+      log(`⛔ ${TOOLS[state.tool].name} does not support ${MODE_LABELS[tab.dataset.mode]}`, "warn");
+      return;
+    }
     document.querySelectorAll(".mode-tab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     state.mode = tab.dataset.mode;
-    log(`⚙️ Garantia alterada para: ${state.mode}`, "info");
-    updateExplainer();
+    log(`⚙️ Guarantee changed to: ${MODE_LABELS[state.mode]}`, "info");
   });
 });
 
@@ -480,8 +471,7 @@ $("idempotencyToggle").addEventListener("change", (e) => {
   state.idempotency = e.target.checked;
   $("idemLabel").textContent = state.idempotency ? "ON" : "OFF";
   $("idemLabel").style.color = state.idempotency ? "var(--ok)" : "var(--text-dim)";
-  log(`🛡️ Idempotência: ${state.idempotency ? "ATIVADA" : "DESATIVADA"}`, "info");
-  updateExplainer();
+  log(`🛡️ Idempotency: ${state.idempotency ? "ENABLED" : "DISABLED"}`, "info");
 });
 
 $("speedSelect").addEventListener("change", (e) => {
@@ -505,7 +495,7 @@ $("sendBurst").addEventListener("click", async () => {
     $(id).checked = true;
   });
   state.fails = { producer: true, network: true, ack: true, consumer: true };
-  log("🌪️ Rajada: 15 mensagens com TODAS as falhas ativadas", "warn");
+  log("🌪️ Chaos burst: 15 messages with ALL failures enabled", "warn");
   for (let i = 0; i < 15; i++) {
     sendLogicalMessage(100);
     await sleep(Math.max(250, state.speed * 0.4));
@@ -517,5 +507,5 @@ $("resetBtn").addEventListener("click", reset);
 // Init
 applyTool();
 updateStats();
-setPhase("Pronto — escolha a configuração e clique em '+1 mensagem'");
-log("✨ Simulador pronto.", "info");
+setPhase("Ready — pick your config and click '+1'");
+log("✨ Simulator ready.", "info");
