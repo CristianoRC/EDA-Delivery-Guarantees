@@ -11,7 +11,7 @@ export function useDLQ() {
     const logicalId = store.nextMsgId()
     const id = `msg-${logicalId}`
     const isPoison = forcePoison || Math.random() * 100 < store.poisonRate
-    const label = `${isPoison ? '☠️' : '📩'} #${logicalId}`
+    const label = `#${logicalId}`
     const reason = forcePoison ? ' (POISON, invalid payload)' : (isPoison ? ' (POISON)' : '')
     log.push(`📤 Producer: published ${id}${reason}`, 'info')
     await dlqAttempt(id, label, isPoison, 1)

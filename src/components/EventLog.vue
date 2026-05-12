@@ -32,7 +32,7 @@
       <svg class="log-caret" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
         <path d="M2 3.5 L5 6.5 L8 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span class="log-title">📜 Event log</span>
+      <span class="log-title"><Icon :icon="ICONS.log" class="log-title-icon" /> Event log</span>
       <span v-if="log.entries.length" class="log-count">{{ log.entries.length }}</span>
 
       <span v-if="!isOpen && lastEntry" class="log-peek" :class="lastEntry.level">
@@ -79,7 +79,9 @@
 
 <script setup>
 import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useLogStore } from '@/stores/log'
+import { ICONS } from '@/config/icons'
 
 const log = useLogStore()
 const logEl = ref(null)
@@ -223,7 +225,13 @@ watch(
   .log-summary.is-open & { transform: rotate(180deg); color: var(--accent); }
 }
 
-.log-title { flex-shrink: 0; }
+.log-title {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.log-title-icon { font-size: 13px; }
 
 .log-count {
   display: inline-flex;

@@ -52,27 +52,26 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
 
-  &::before { content: "📩"; font-size: 13px; }
+  .msg-icon {
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+  }
+
   &.poison { background: #fb7185; color: white; }
-  &.poison::before { content: "☠️"; }
   &.retry { background: var(--warn); }
-  &.retry::before { content: "🔁"; }
   &.dup { background: var(--warn); }
-  &.dup::before { content: "♻️"; }
   &.ack { background: var(--ok); }
-  &.ack::before { content: "✓"; }
   &.lost { background: var(--danger); color: white; }
-  &.lost::before { content: "💀"; }
   &.dead {
     background: var(--dlq); color: white;
     box-shadow: 0 4px 20px rgba(239,68,68,0.5), 0 0 0 3px rgba(239,68,68,0.3);
   }
-  &.dead::before { content: "🪦"; }
   &.query {
     background: rgba(167, 139, 250, 0.85);
     color: #0b1220;
     box-shadow: 0 4px 20px rgba(167,139,250,0.5), 0 0 0 3px rgba(167,139,250,0.25);
   }
-  &.query::before { content: "🔍"; }
 }
 </style>

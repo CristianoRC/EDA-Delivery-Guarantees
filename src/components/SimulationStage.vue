@@ -11,7 +11,7 @@
     >
       <pipeline-node
         variant="producer"
-        icon="📤"
+        :icon="ICONS.producer"
         label="PRODUCER"
         :desc="store.isOutbox ? 'Writes business + outbox' : ''"
         stat-label="published"
@@ -22,7 +22,7 @@
       <template v-if="store.scenarioConfig.showOutbox">
         <pipeline-node
           variant="outbox"
-          icon="🗄️"
+          :icon="ICONS.sourceDb"
           label="SOURCE DB"
           desc="business + outbox table"
           stat-label="pending"
@@ -34,7 +34,7 @@
 
       <pipeline-node
         variant="broker"
-        icon="📨"
+        :icon="store.toolConfig.icon"
         :label="store.toolConfig.brokerLabel"
         :desc="store.toolConfig.brokerDesc"
         stat-label="in queue"
@@ -43,7 +43,7 @@
       <div class="arrow">→</div>
       <pipeline-node
         variant="consumer"
-        icon="⚙️"
+        :icon="ICONS.consumer"
         label="CONSUMER"
         :desc="store.isInbox ? 'dedup via inbox + atomic write' : ''"
         stat-label="processed"
@@ -54,7 +54,7 @@
       <template v-if="store.scenarioConfig.showInbox">
         <pipeline-node
           variant="inbox"
-          icon="📥"
+          :icon="ICONS.inbox"
           label="INBOX"
           desc="processed message_ids"
           stat-label="rows"
@@ -66,7 +66,7 @@
 
       <pipeline-node
         variant="db"
-        icon="💾"
+        :icon="ICONS.db"
         label="DATABASE"
         desc="John's balance"
         stat-label="balance"
@@ -78,7 +78,7 @@
       <pipeline-node
         v-show="store.scenarioConfig.showDLQ"
         variant="dlq"
-        icon="🪦"
+        :icon="ICONS.dlq"
         label="DEAD LETTER"
         desc="Poison messages"
         stat-label="dead-lettered"
@@ -104,7 +104,10 @@
 
       <template v-if="store.scenarioConfig.showInbox">
         <div class="inbox-banner">
-          <span class="inbox-banner-line">🛡️ atomic tx: INSERT inbox + UPDATE balance</span>
+          <span class="inbox-banner-line">
+            <Icon :icon="ICONS.idempotency" class="inbox-banner-icon" />
+            atomic tx: INSERT inbox + UPDATE balance
+          </span>
         </div>
       </template>
 
@@ -117,17 +120,19 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { Icon } from '@iconify/vue'
 import PipelineNode from './PipelineNode.vue'
 import AppBottomBar from './AppBottomBar.vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { registerStage, registerLayer } from '@/composables/useAnimation'
+import { ICONS } from '@/config/icons'
 
 const store = useSimulatorStore()
 const stageEl = ref(null)
 const layerEl = ref(null)
 
 const isCDC = computed(() => store.outboxMode === 'cdc')
-const relayIcon = computed(() => isCDC.value ? '⚡' : '🔄')
+const relayIcon = computed(() => isCDC.value ? ICONS.relayCdc : ICONS.relayPolling)
 const relayLabel = computed(() => isCDC.value ? 'CDC CONNECTOR' : 'POLLING WORKER')
 const relayDesc = computed(() => isCDC.value ? 'tails the transaction log' : 'SELECT outbox @ 1.5s')
 const relayLineLabel = computed(() => isCDC.value ? 'tx-log stream' : 'SELECT … WHERE pending')
@@ -244,6 +249,9 @@ onMounted(() => {
       padding: 2px 0 4px 0;
     }
     .inbox-banner-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0.4px;
@@ -254,6 +262,7 @@ onMounted(() => {
       border-radius: 999px;
       border: 1px solid rgba(94, 234, 212, 0.3);
     }
+    .inbox-banner-icon { font-size: 12px; }
   }
 }
 

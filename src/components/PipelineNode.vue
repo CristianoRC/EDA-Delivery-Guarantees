@@ -7,7 +7,7 @@
       { flash: store.flashing[variant], crash: store.crashing[variant] },
     ]"
   >
-    <div class="node-icon">{{ icon }}</div>
+    <div class="node-icon"><Icon :icon="icon" /></div>
     <div class="node-label">{{ label }}</div>
     <div class="node-desc" :class="{ 'is-placeholder': !desc }">{{ desc || ' ' }}</div>
     <div class="node-stat" :class="statClass">
@@ -19,6 +19,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { registerNode } from '@/composables/useAnimation'
 
@@ -59,23 +60,37 @@ onMounted(() => {
   transition: all 0.3s;
   position: relative;
 
-  &.node-producer { border-color: var(--producer); }
-  &.node-broker { border-color: var(--broker); }
-  &.node-consumer { border-color: var(--consumer); }
-  &.node-db { border-color: var(--db); }
-  &.node-dlq { border-color: var(--dlq); }
-  &.node-outbox { border-color: var(--outbox); }
+  &.node-producer { border-color: var(--producer); .node-icon { color: var(--producer); } }
+  &.node-broker { border-color: var(--broker); .node-icon { color: var(--broker); } }
+  &.node-consumer { border-color: var(--consumer); .node-icon { color: var(--consumer); } }
+  &.node-db { border-color: var(--db); .node-icon { color: var(--db); } }
+  &.node-dlq { border-color: var(--dlq); .node-icon { color: var(--dlq); } }
+  &.node-outbox { border-color: var(--outbox); .node-icon { color: var(--outbox); } }
   &.node-relay {
     border-color: var(--outbox);
     border-style: dashed;
+    .node-icon { color: var(--outbox); }
   }
-  &.node-inbox { border-color: var(--inbox); }
+  &.node-inbox { border-color: var(--inbox); .node-icon { color: var(--inbox); } }
 
   &.flash { animation: flash 0.6s ease; }
   &.crash { animation: crash 0.6s ease; }
 }
 
-.node-icon { font-size: 32px; line-height: 1; }
+.node-icon {
+  font-size: 32px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+
+  :deep(svg) {
+    width: 32px;
+    height: 32px;
+    display: block;
+  }
+}
 .node-label {
   font-weight: 700;
   font-size: 11px;

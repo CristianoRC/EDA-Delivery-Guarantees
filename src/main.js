@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import vuetify from './plugins/vuetify'
 import App from './App.vue'
 import './styles/global.scss'
+import 'iconify-icon'
 
 createApp(App)
   .use(createPinia())

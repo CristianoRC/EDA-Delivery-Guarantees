@@ -24,22 +24,25 @@
     <div class="topbar-controls">
       <div class="control-group">
         <label>Tool</label>
-        <select
-          class="select"
-          :value="store.tool"
-          @change="onToolChange"
-        >
-          <optgroup v-for="group in TOOL_GROUPS" :key="group" :label="group">
-            <option
-              v-for="(t, id) in toolsByGroup(group)"
-              :key="id"
-              :value="id"
-              :disabled="!store.isToolSupported(id)"
-            >
-              {{ store.isToolSupported(id) ? t.name : `${t.name} (not native)` }}
-            </option>
-          </optgroup>
-        </select>
+        <div class="tool-select-wrap">
+          <Icon :icon="store.toolConfig.icon" class="tool-select-icon" />
+          <select
+            class="select tool-select"
+            :value="store.tool"
+            @change="onToolChange"
+          >
+            <optgroup v-for="group in TOOL_GROUPS" :key="group" :label="group">
+              <option
+                v-for="(t, id) in toolsByGroup(group)"
+                :key="id"
+                :value="id"
+                :disabled="!store.isToolSupported(id)"
+              >
+                {{ store.isToolSupported(id) ? t.name : `${t.name} (not native)` }}
+              </option>
+            </optgroup>
+          </select>
+        </div>
       </div>
 
       <div class="control-group">
@@ -59,6 +62,7 @@
 </template>
 
 <script setup>
+import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { TOOLS, TOOL_GROUPS } from '@/config/tools'
 import { SPEEDS } from '@/config/scenarios'
@@ -123,6 +127,21 @@ function onToolChange(e) {
   min-width: 180px;
   &.small { min-width: 110px; }
 }
+
+.tool-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.tool-select-icon {
+  position: absolute;
+  left: 8px;
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 1;
+  color: var(--text-dim);
+}
+.tool-select { padding-left: 30px; }
 
 .btn {
   background: var(--bg-panel-2);

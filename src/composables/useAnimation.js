@@ -1,4 +1,5 @@
 import { useSimulatorStore } from '@/stores/simulator'
+import { ICONS } from '@/config/icons'
 
 // Refs to the DOM containers populated by SimulationStage on mount.
 const nodes = {
@@ -29,6 +30,16 @@ function centerOf(name) {
   }
 }
 
+const MSG_ICONS = {
+  '': ICONS.message,
+  retry: ICONS.retry,
+  dup: ICONS.duplicate,
+  ack: ICONS.ack,
+  query: ICONS.query,
+  poison: ICONS.poison,
+  dead: ICONS.dlq,
+}
+
 export function animateMsg(fromName, toName, label, cls = '', willLose = false, speedMs = null) {
   const store = useSimulatorStore()
   const speed = speedMs ?? store.speed
@@ -36,7 +47,17 @@ export function animateMsg(fromName, toName, label, cls = '', willLose = false, 
     if (!layerEl) return resolve()
     const msg = document.createElement('div')
     msg.className = `msg ${cls}`.trim()
-    msg.textContent = label
+
+    const iconEl = document.createElement('iconify-icon')
+    iconEl.setAttribute('icon', MSG_ICONS[cls] ?? ICONS.message)
+    iconEl.className = 'msg-icon'
+    msg.appendChild(iconEl)
+
+    const labelEl = document.createElement('span')
+    labelEl.className = 'msg-label'
+    labelEl.textContent = label
+    msg.appendChild(labelEl)
+
     const from = centerOf(fromName)
     const to = centerOf(toName)
     msg.style.left = from.x + 'px'

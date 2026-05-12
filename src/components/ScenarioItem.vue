@@ -6,7 +6,7 @@
     :title="disabled ? 'Coming soon' : null"
     @click="!disabled && $emit('select')"
   >
-    <span class="scenario-icon">{{ icon }}</span>
+    <span class="scenario-icon"><Icon :icon="icon" /></span>
     <span class="scenario-text">
       <strong>{{ title }}</strong>
       <small>{{ blurb }}</small>
@@ -15,6 +15,8 @@
 </template>
 
 <script setup>
+import { Icon } from '@iconify/vue'
+
 defineProps({
   icon: { type: String, required: true },
   title: { type: String, required: true },
@@ -71,7 +73,19 @@ defineEmits(['select'])
     border-color: var(--border);
     .scenario-text strong { color: var(--text-dim); }
   }
-  .scenario-icon { transition: transform 0.2s; font-size: 22px; line-height: 1; flex-shrink: 0; }
+  .scenario-icon {
+    transition: transform 0.2s;
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    color: var(--text-dim);
+  }
+  &.active .scenario-icon { color: var(--accent); }
 }
 
 .scenario-text {

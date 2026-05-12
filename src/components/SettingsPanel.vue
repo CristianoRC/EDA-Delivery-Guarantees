@@ -75,14 +75,14 @@
             :class="{ active: store.outboxMode === 'polling' }"
             @click="store.setOutboxMode('polling')"
           >
-            🛰️ Polling
+            <Icon :icon="ICONS.relayPolling" class="seg-btn-icon" /> Polling
           </button>
           <button
             class="seg-btn"
             :class="{ active: store.outboxMode === 'cdc' }"
             @click="store.setOutboxMode('cdc')"
           >
-            ⚡ CDC
+            <Icon :icon="ICONS.relayCdc" class="seg-btn-icon" /> CDC
           </button>
         </div>
         <span class="setting-hint">
@@ -106,7 +106,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
+import { ICONS } from '@/config/icons'
 
 const store = useSimulatorStore()
 const sc = computed(() => store.scenarioConfig)
@@ -198,6 +200,10 @@ const sc = computed(() => store.scenarioConfig)
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   &:hover { color: var(--text); }
   &.active {
     background: var(--outbox);
@@ -205,5 +211,6 @@ const sc = computed(() => store.scenarioConfig)
     box-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
   }
 }
+.seg-btn-icon { font-size: 13px; }
 
 </style>

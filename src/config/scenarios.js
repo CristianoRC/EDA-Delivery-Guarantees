@@ -1,8 +1,10 @@
+import { ICONS } from './icons'
+
 export const SCENARIOS = {
   'at-most-once': {
     id: 'at-most-once',
     name: 'At-most-once',
-    icon: '💨',
+    icon: ICONS.atMostOnce,
     blurb: 'Fire and forget. May lose.',
     mode: 'at-most-once',
     showIdempotency: false,
@@ -13,7 +15,7 @@ export const SCENARIOS = {
   'at-least-once': {
     id: 'at-least-once',
     name: 'At-least-once',
-    icon: '🔁',
+    icon: ICONS.atLeastOnce,
     blurb: 'Retry until ACK. May duplicate.',
     mode: 'at-least-once',
     showIdempotency: true,
@@ -24,7 +26,7 @@ export const SCENARIOS = {
   'exactly-once': {
     id: 'exactly-once',
     name: 'Exactly-once',
-    icon: '🛡️',
+    icon: ICONS.exactlyOnce,
     blurb: 'Broker dedup + transactions.',
     mode: 'exactly-once',
     showIdempotency: true,
@@ -35,7 +37,7 @@ export const SCENARIOS = {
   dlq: {
     id: 'dlq',
     name: 'Dead Letter Queue',
-    icon: '🪦',
+    icon: ICONS.scenarioDlq,
     blurb: 'Poison messages → DLQ after N retries.',
     mode: 'at-least-once',
     showIdempotency: false,
@@ -47,7 +49,7 @@ export const SCENARIOS = {
   outbox: {
     id: 'outbox',
     name: 'Outbox Pattern',
-    icon: '📦',
+    icon: ICONS.scenarioOutbox,
     blurb: 'Atomic DB write + relay to broker.',
     mode: 'at-least-once',
     showIdempotency: false,
@@ -59,7 +61,7 @@ export const SCENARIOS = {
   inbox: {
     id: 'inbox',
     name: 'Inbox Pattern',
-    icon: '📥',
+    icon: ICONS.scenarioInbox,
     blurb: 'Consumer-side dedup via atomic inbox table.',
     mode: 'at-least-once',
     showIdempotency: false,

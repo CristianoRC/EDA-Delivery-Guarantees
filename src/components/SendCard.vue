@@ -13,7 +13,7 @@
         title="Sends a message with invalid payload, guaranteed to fail and end up in the DLQ"
         @click="delivery.sendPoisonMessage()"
       >
-        ☠️ Send poison
+        <Icon :icon="ICONS.poison" class="btn-icon" /> Send poison
       </button>
       <button
         v-else-if="store.isOutbox"
@@ -21,7 +21,7 @@
         title="Send 10 messages with both outbox failures enabled"
         @click="outboxStress"
       >
-        📦 Stress relay
+        <Icon :icon="ICONS.scenarioOutbox" class="btn-icon" /> Stress relay
       </button>
       <button
         v-else-if="store.isInbox"
@@ -29,18 +29,22 @@
         title="Send 10 messages with broker redelivery and tx abort enabled, inbox should keep balance correct"
         @click="inboxStress"
       >
-        📥 Stress inbox
+        <Icon :icon="ICONS.scenarioInbox" class="btn-icon" /> Stress inbox
       </button>
-      <button v-else class="btn btn-danger" @click="delivery.chaosBurst()">Chaos burst</button>
+      <button v-else class="btn btn-danger" @click="delivery.chaosBurst()">
+        <Icon :icon="ICONS.chaos" class="btn-icon" /> Chaos burst
+      </button>
     </div>
   </section>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useDelivery } from '@/composables/useDelivery'
 import { useSimulatorStore } from '@/stores/simulator'
 import { useLogStore } from '@/stores/log'
+import { ICONS } from '@/config/icons'
 
 const delivery = useDelivery()
 const store = useSimulatorStore()
@@ -75,7 +79,15 @@ function inboxStress() {
   grid-template-columns: 1fr 1fr;
   gap: 6px;
 
-  .btn { padding: 8px 6px; font-size: 12px; }
+  .btn {
+    padding: 8px 6px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-icon { font-size: 14px; }
   .btn-danger { grid-column: span 2; }
   .btn-poison {
     grid-column: span 2;

@@ -7,6 +7,7 @@
     <div class="failures-grid">
       <label v-for="chip in chips" :key="chip.key" class="fail-chip">
         <input type="checkbox" v-model="store.fails[chip.key]" />
+        <Icon :icon="chip.icon" class="fail-chip-icon" />
         <span>{{ chip.label }}</span>
       </label>
     </div>
@@ -15,24 +16,26 @@
 
 <script setup>
 import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
+import { ICONS } from '@/config/icons'
 const store = useSimulatorStore()
 
 const DEFAULT_CHIPS = [
-  { key: 'producer', label: '📤 Producer 10%' },
-  { key: 'network', label: '📡 Network 15%' },
-  { key: 'ack', label: '✉️ ACK 20%' },
-  { key: 'consumer', label: '💥 Crash 15%' },
+  { key: 'producer', icon: ICONS.producer, label: 'Producer 10%' },
+  { key: 'network', icon: ICONS.network, label: 'Network 15%' },
+  { key: 'ack', icon: ICONS.ackFail, label: 'ACK 20%' },
+  { key: 'consumer', icon: ICONS.crash, label: 'Crash 15%' },
 ]
 
 const OUTBOX_CHIPS = [
-  { key: 'dbCommit', label: '💾 DB commit 25%' },
-  { key: 'relayCrash', label: '🛰️ Relay crash 40%' },
+  { key: 'dbCommit', icon: ICONS.dbCommitFail, label: 'DB commit 25%' },
+  { key: 'relayCrash', icon: ICONS.relayPolling, label: 'Relay crash 40%' },
 ]
 
 const INBOX_CHIPS = [
-  { key: 'txAbort', label: '🧨 Tx abort 25%' },
-  { key: 'ackLost', label: '✉️ ACK lost 40%' },
+  { key: 'txAbort', icon: ICONS.txAbort, label: 'Tx abort 25%' },
+  { key: 'ackLost', icon: ICONS.ackFail, label: 'ACK lost 40%' },
 ]
 
 const chips = computed(() => {
@@ -70,6 +73,12 @@ const subTitle = computed(() => {
   transition: all 0.15s;
   &:hover { border-color: var(--danger); }
   input { accent-color: var(--danger); margin: 0; }
-  input:checked + span { color: var(--danger); font-weight: 600; }
+  .fail-chip-icon {
+    font-size: 14px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  input:checked ~ span { color: var(--danger); font-weight: 600; }
+  input:checked ~ .fail-chip-icon { color: var(--danger); }
 }
 </style>
