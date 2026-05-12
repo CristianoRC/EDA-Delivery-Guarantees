@@ -1,49 +1,52 @@
 # Delivery Guarantees Simulator — Event-Driven Architecture
 
-An interactive, browser-based simulator built for **teaching delivery guarantees in EDA**. It visualizes the full `Producer → Broker → Consumer → DB` flow with animated messages, injectable failures, and a side-by-side comparison of *expected vs actual* state — so the bug caused by missing idempotency becomes obvious in real time.
+An interactive, browser-based simulator built for **teaching delivery guarantees in EDA**. Visualizes the full `Producer → Broker → Consumer → DB` flow with animated messages, injectable failures, and contextual metrics — so the bug caused by missing idempotency (or a poison message reaching the DLQ) becomes obvious in real time.
 
 No build step, no dependencies. Open `index.html` and go.
 
 ---
 
-## What it shows
+## Scenarios
 
-The scenario is a **bank transfer of $100** to "John". Each message you send adds $100 to John's balance. The simulator tracks **expected balance** (what the user wanted) vs the **actual balance** stored in the DB after the broker/consumer dance. When the two diverge, you can see exactly *why*.
+The simulator is organized as a **side menu of scenarios**, each isolating one concept. Pick a scenario on the left, the rest of the UI adapts.
 
-### The three delivery guarantees
+| Scenario | What it teaches | Default tool |
+|----------|-----------------|--------------|
+| 💨 **At-most-once** | Fire-and-forget. Messages can be lost on any failure. | Azure Storage Queue |
+| 🔁 **At-least-once** | Retry until ACK. Messages can be duplicated. *Idempotency toggle here.* | Azure Service Bus |
+| 🛡️ **Exactly-once** | Broker-side dedup + transactional commits. | Azure Service Bus |
+| 🪦 **Dead Letter Queue** | Poison messages exceed MaxDeliveryCount → moved to DLQ. | Azure Service Bus |
 
-| Mode | What happens | Risk |
-|------|--------------|------|
-| **At-most-once** | Producer sends and forgets. Consumer doesn't ACK. | Messages can be **lost** |
-| **At-least-once** | Producer retries until ACK. Consumer commits after processing. | Messages can be **duplicated** |
-| **Exactly-once** | Broker deduplicates by `MessageId` + transactional commits. | Slower, more expensive infra |
+---
 
-### Idempotency toggle
+## The teaching scenario
 
-The key teaching moment: with **at-least-once + idempotency OFF**, retries inflate John's balance to $200, $300… Turn the switch ON and the consumer's dedup store discards repeats — balance stays correct.
+For the three delivery guarantees, the demo is a **bank transfer of $100** to "John". Each message you send adds $100 to John's balance. The metrics card shows **Expected vs Actual** in the DB — when they diverge, you see the bug.
+
+For **DLQ**, messages are tagged as *poison* with a configurable probability. Poison messages always fail processing — they bounce back to the broker for redelivery, and once the delivery count exceeds the configured threshold, they are moved to the dead-letter queue instead of being retried forever. The metrics flip to show **Successfully processed vs Dead-lettered**.
 
 ---
 
 ## Tools modeled
 
-Each tool only exposes the guarantees it **actually supports natively**. Unsupported modes are shown crossed-out with a tooltip explaining why.
+Each tool exposes only the guarantees / DLQ behavior it actually supports natively. Unsupported options appear disabled in the dropdown.
 
 ### Azure
-- **Azure Service Bus** — `PeekLock` + `Complete()` for at-least-once; `RequiresDuplicateDetection` for exactly-once (up to 7-day window)
-- **Service Bus + Sessions** — FIFO per `SessionId` + dedup, the strongest option
-- **Azure Event Hubs** — Kafka-like with partitions and offsets; checkpoint-based
-- **Azure Event Grid** — at-least-once only; HTTP pub/sub with exponential retry + dead-letter to Blob
-- **Azure Storage Queue** — simple queue with `VisibilityTimeout`
+- **Azure Service Bus** — `PeekLock` + `Complete()` (at-least-once); `RequiresDuplicateDetection` (exactly-once); **native DLQ** after `MaxDeliveryCount`
+- **Service Bus + Sessions** — FIFO per `SessionId` + dedup; native DLQ
+- **Azure Event Hubs** — Kafka-like with partitions; **no native DLQ** (implement via separate handler)
+- **Azure Event Grid** — at-least-once HTTP pub/sub with exponential retry; **dead-letter to Blob Storage**
+- **Azure Storage Queue** — simple queue with `VisibilityTimeout`; **no native DLQ** (implement via `DequeueCount` check)
 
 ### Others
-- **RabbitMQ** — `publisher confirms` + `manual ack`; exactly-once is NOT native
-- **Apache Kafka** — at-least-once default; full EOS via idempotent producer + transactions
+- **RabbitMQ** — `publisher confirms` + `manual ack`; **native DLX** (Dead Letter Exchange) on nack/reject/TTL
+- **Apache Kafka** — full EOS via idempotent producer + transactions; **no native DLQ** (common pattern: dedicated dead-letter topic)
 
 ---
 
 ## Injectable failures
 
-Four checkboxes let you inject realistic distributed-system failures:
+Four checkboxes inject realistic distributed-system failures (used by all scenarios):
 
 - **📤 Producer 10%** — broker is down / producer can't publish
 - **📡 Network 15%** — packet lost in transit (Producer → Broker)
@@ -54,17 +57,23 @@ Or hit **Chaos burst** to enable everything and send 15 messages in a row.
 
 ---
 
-## Classroom walkthrough
+## Classroom walkthroughs
 
-A 5-minute demo flow:
+### 5-minute demo: the idempotency bug
 
-1. **Pick a tool** that doesn't support exactly-once natively (e.g., **Event Grid**). Notice the *Exactly-once* tab is grayed out.
-2. **Speed: Slow** so students can follow each animation.
-3. **Idempotency: OFF**. Enable the **ACK 20%** failure. Click **+5**.
-4. Watch the message pills travel `Producer → Broker → Consumer → DB`. When an ACK is lost, the broker redelivers — and the balance climbs past expected.
-5. The metrics card lights up: **Δ +$200 • inflated** in yellow. This is the bug.
-6. **Reset → Idempotency: ON**. Repeat. The consumer now logs `🛡️ already processed — discarded`. Balance ends at expected. Δ shows **OK** in green.
-7. **Switch tool** to **Azure Service Bus + Sessions** (default: *exactly-once*) and run again. The broker's duplicate detection prevents the bug at the infra layer.
+1. Pick **At-least-once** scenario. Tool: **Azure Service Bus**. Speed: **Slow**.
+2. **Idempotency: OFF**. Enable **ACK 20%** failure. Click **+5**.
+3. Watch messages travel `Producer → Broker → Consumer → DB`. When an ACK is lost, the broker redelivers — balance climbs past expected.
+4. Metrics light up: **Δ +$200 • inflated** in yellow. This is the bug.
+5. **Reset → Idempotency: ON**. Repeat. Consumer logs `🛡️ already processed — discarded`. Balance ends at expected. Δ shows **OK** in green.
+
+### 3-minute demo: dead-letter queue
+
+1. Pick **Dead Letter Queue** scenario. Tool: **Azure Service Bus**.
+2. Notice the **🪦 DLQ node appears** below the broker. Settings show *Max delivery count* (default 3) and *Poison message rate* (default 30%).
+3. Click **+5**. Some messages succeed; the poison ones (with ☠️) bounce attempt 1 → 2 → 3 → DLQ.
+4. Metrics: **Successfully processed** vs **Dead-lettered** percentage.
+5. Try switching tool to **Apache Kafka** — disabled, because Kafka has no native DLQ.
 
 ---
 
@@ -72,23 +81,37 @@ A 5-minute demo flow:
 
 ```
 Delivery-Guarantees/
-├── index.html       # markup + favicon (inline SVG)
-├── styles.css       # dark theme, animations, metrics layout
-├── simulator.js     # state machine, delivery logic, UI bindings
+├── index.html       # markup + inline SVG favicon
+├── styles.css       # dark theme, scenario sidebar, DLQ grid mode
+├── simulator.js     # scenarios, state machine, delivery logic
+├── .gitignore
 └── README.md
 ```
 
-Everything runs client-side. There is no build step, no `npm install`, no server. Just open `index.html` in any modern browser (tested on Chrome/Safari/Firefox).
+Everything runs client-side. No build step, no `npm install`, no server. Open `index.html` in any modern browser.
 
 ---
 
 ## Architecture notes
 
-- **State** is a single object mutated in place; UI reads from it on every animation tick.
+- **Scenarios** live in a `SCENARIOS` map; each has `mode`, `showIdempotency`, `showDLQ`, `defaultTool`. Switching scenarios resets state, swaps the metrics card, and re-renders the settings panel.
+- **Stage grid** uses CSS grid. In DLQ mode, an extra row is enabled and the DLQ node is positioned beneath the broker.
 - **Animated messages** are absolutely-positioned DOM pills moved with CSS transitions — no canvas/SVG.
-- **The consumer's idempotency store** is a `Set<idempotencyKey>` (modeling Redis / inbox table).
-- **The broker's dedup store** (used only in exactly-once mode) is a separate `Set` (modeling Service Bus duplicate detection / Kafka idempotent producer).
-- **Retries** are bounded at 3 attempts.
+- **Consumer-side idempotency** is modeled as a `Set<idempotencyKey>` (Redis / inbox table).
+- **Broker-side dedup** (exactly-once) is a separate `Set` (Service Bus duplicate detection / Kafka idempotent producer).
+- **DLQ logic** tracks `deliveryCount` per message; when it hits `maxDeliveryCount`, the broker animates the message to the DLQ node instead of redelivering.
+
+---
+
+## Adding new scenarios
+
+To add a scenario (e.g., **Outbox Pattern**, **Saga Compensation**, **Retry with Backoff**):
+
+1. Add an entry to `SCENARIOS` in `simulator.js` with `name`, `icon`, `mode`, and any feature flags.
+2. Add a `<button class="scenario-item" data-scenario="...">` to the sidebar in `index.html`.
+3. If it needs a new node, declare it in the grid (mirror the DLQ pattern) and toggle visibility via a CSS class in `applyScenario()`.
+4. If it has custom settings, extend `renderSettings()` to inject the right controls.
+5. Implement the delivery flow (e.g., `sendOutboxMessage()`) and route to it from `sendLogicalMessage()`.
 
 ---
 

@@ -38,24 +38,6 @@
     </div>
 
     <div class="control-group">
-      <label>Guarantee</label>
-      <div class="mode-tabs">
-        <button class="mode-tab" data-mode="at-most-once">At-most-once</button>
-        <button class="mode-tab active" data-mode="at-least-once">At-least-once</button>
-        <button class="mode-tab" data-mode="exactly-once">Exactly-once</button>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label>Idempotency</label>
-      <label class="switch big">
-        <input type="checkbox" id="idempotencyToggle" />
-        <span class="slider"></span>
-        <span id="idemLabel" class="switch-state">OFF</span>
-      </label>
-    </div>
-
-    <div class="control-group">
       <label>Speed</label>
       <select id="speedSelect" class="select small">
         <option value="2200">Slow</option>
@@ -68,99 +50,172 @@
   </div>
 </header>
 
-<!-- ========== TOOL INFO (1 LINE) ========== -->
+<!-- ========== TOOL INFO ========== -->
 <div id="toolInfo" class="tool-info"></div>
 
-<!-- ========== STAGE ========== -->
-<main class="stage">
-  <div id="phaseLabel" class="phase-label">Waiting...</div>
+<!-- ========== MAIN LAYOUT: SIDEBAR + STAGE ========== -->
+<div class="main-layout">
 
-  <div class="stage-grid">
-    <div class="node node-producer" id="nodeProducer">
-      <div class="node-icon">📤</div>
-      <div class="node-label">PRODUCER</div>
-      <div class="node-stat"><span>published</span><b id="statSent">0</b></div>
-    </div>
-    <div class="arrow">→</div>
-    <div class="node node-broker" id="nodeBroker">
-      <div class="node-icon">📨</div>
-      <div class="node-label" id="brokerLabel">BROKER</div>
-      <div class="node-desc" id="brokerDesc">Queue / Topic</div>
-      <div class="node-stat"><span>in queue</span><b id="statQueue">0</b></div>
-    </div>
-    <div class="arrow">→</div>
-    <div class="node node-consumer" id="nodeConsumer">
-      <div class="node-icon">⚙️</div>
-      <div class="node-label">CONSUMER</div>
-      <div class="node-stat"><span>processed</span><b id="statProcessed">0</b></div>
-    </div>
-    <div class="arrow">→</div>
-    <div class="node node-db" id="nodeDb">
-      <div class="node-icon">💾</div>
-      <div class="node-label">DATABASE</div>
-      <div class="node-desc">John's balance</div>
-      <div class="node-stat balance"><span>balance</span><b id="statBalance">$ 0</b></div>
-    </div>
-    <div id="msgLayer" class="msg-layer"></div>
-  </div>
+  <!-- =============== SIDEBAR =============== -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="scenario-category">
+        <h3 class="sidebar-title">
+          <span class="cat-dot cat-dot-guarantees"></span>
+          Delivery Guarantees
+        </h3>
+        <div class="scenario-list">
+          <button class="scenario-item" data-scenario="at-most-once">
+            <span class="scenario-icon">💨</span>
+            <span class="scenario-text">
+              <strong>At-most-once</strong>
+              <small>Fire and forget. May lose.</small>
+            </span>
+          </button>
 
-  <!-- ========== BOTTOM BAR ========== -->
-  <div class="bottom-bar">
+          <button class="scenario-item active" data-scenario="at-least-once">
+            <span class="scenario-icon">🔁</span>
+            <span class="scenario-text">
+              <strong>At-least-once</strong>
+              <small>Retry until ACK. May duplicate.</small>
+            </span>
+          </button>
 
-    <!-- ACTIONS -->
-    <section class="card card-actions">
-      <header class="card-header">
-        <span class="card-title">Send</span>
-        <span class="card-sub">$100 per msg</span>
-      </header>
-      <div class="actions">
-        <button id="send1" class="btn btn-primary">+1</button>
-        <button id="send5" class="btn">+5</button>
-        <button id="sendBurst" class="btn btn-danger">Chaos burst</button>
-      </div>
-    </section>
-
-    <!-- FAILURES -->
-    <section class="card card-fails">
-      <header class="card-header">
-        <span class="card-title">Inject failures</span>
-        <span class="card-sub">real-world simulation</span>
-      </header>
-      <div class="failures-grid">
-        <label class="fail-chip"><input type="checkbox" id="failProducer" /><span>📤 Producer 10%</span></label>
-        <label class="fail-chip"><input type="checkbox" id="failNetwork" /><span>📡 Network 15%</span></label>
-        <label class="fail-chip"><input type="checkbox" id="failAck" /><span>✉️ ACK 20%</span></label>
-        <label class="fail-chip"><input type="checkbox" id="failConsumer" /><span>💥 Crash 15%</span></label>
-      </div>
-    </section>
-
-    <!-- METRICS — HERO + MINI STATS -->
-    <section class="card card-metrics">
-      <div class="hero">
-        <div class="hero-side">
-          <span class="hero-tag">Expected</span>
-          <span class="hero-num" id="heroExpected">$ 0</span>
-        </div>
-        <div class="hero-divider">
-          <span class="hero-arrow" id="heroArrow">vs</span>
-          <span class="hero-delta" id="heroDelta">Δ $ 0</span>
-        </div>
-        <div class="hero-side hero-actual">
-          <span class="hero-tag">Actual in DB</span>
-          <span class="hero-num" id="heroActual">$ 0</span>
+          <button class="scenario-item" data-scenario="exactly-once">
+            <span class="scenario-icon">🛡️</span>
+            <span class="scenario-text">
+              <strong>Exactly-once</strong>
+              <small>Broker dedup + transactions.</small>
+            </span>
+          </button>
         </div>
       </div>
-      <div class="mini-stats">
-        <div class="mini-stat"><span class="dot dot-blue"></span><b id="mLogical">0</b> sent</div>
-        <div class="mini-stat"><span class="dot dot-green"></span><b id="mDelivered">0</b> delivered</div>
-        <div class="mini-stat"><span class="dot dot-yellow"></span><b id="mDup">0</b> duplicated</div>
-        <div class="mini-stat"><span class="dot dot-red"></span><b id="mLost">0</b> lost</div>
-      </div>
-    </section>
-  </div>
-</main>
 
-<!-- ========== LOG (CLOSED BY DEFAULT) ========== -->
+      <div class="scenario-category">
+        <h3 class="sidebar-title">
+          <span class="cat-dot cat-dot-patterns"></span>
+          Reliability Patterns
+        </h3>
+        <div class="scenario-list">
+          <button class="scenario-item" data-scenario="dlq">
+            <span class="scenario-icon">🪦</span>
+            <span class="scenario-text">
+              <strong>Dead Letter Queue</strong>
+              <small>Poison messages → DLQ after N retries.</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="scenario-category">
+        <h3 class="sidebar-title">
+          <span class="cat-dot cat-dot-soon"></span>
+          Coming Soon
+        </h3>
+        <div class="scenario-list">
+          <div class="scenario-item disabled" title="Coming soon">
+            <span class="scenario-icon">📤</span>
+            <span class="scenario-text">
+              <strong>Outbox Pattern</strong>
+              <small>Atomic publish + DB write</small>
+            </span>
+          </div>
+
+          <div class="scenario-item disabled" title="Coming soon">
+            <span class="scenario-icon">📥</span>
+            <span class="scenario-text">
+              <strong>Inbox Pattern</strong>
+              <small>Consumer-side dedup store</small>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3 class="sidebar-title">Settings</h3>
+      <div id="settingsContent" class="settings-content"></div>
+    </div>
+  </aside>
+
+  <!-- =============== STAGE =============== -->
+  <main class="stage">
+    <div id="phaseLabel" class="phase-label">Waiting...</div>
+
+    <div class="stage-grid" id="stageGrid">
+      <div class="node node-producer" id="nodeProducer">
+        <div class="node-icon">📤</div>
+        <div class="node-label">PRODUCER</div>
+        <div class="node-stat"><span>published</span><b id="statSent">0</b></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-broker" id="nodeBroker">
+        <div class="node-icon">📨</div>
+        <div class="node-label" id="brokerLabel">BROKER</div>
+        <div class="node-desc" id="brokerDesc">Queue / Topic</div>
+        <div class="node-stat"><span>in queue</span><b id="statQueue">0</b></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-consumer" id="nodeConsumer">
+        <div class="node-icon">⚙️</div>
+        <div class="node-label">CONSUMER</div>
+        <div class="node-stat"><span>processed</span><b id="statProcessed">0</b></div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-db" id="nodeDb">
+        <div class="node-icon">💾</div>
+        <div class="node-label">DATABASE</div>
+        <div class="node-desc">John's balance</div>
+        <div class="node-stat balance"><span>balance</span><b id="statBalance">$ 0</b></div>
+      </div>
+
+      <!-- DLQ — only shown in DLQ scenario -->
+      <div class="dlq-arrow" id="dlqArrow">↓</div>
+      <div class="node node-dlq" id="nodeDlq">
+        <div class="node-icon">🪦</div>
+        <div class="node-label">DEAD LETTER</div>
+        <div class="node-desc">Poison messages</div>
+        <div class="node-stat dlq-stat"><span>dead-lettered</span><b id="statDlq">0</b></div>
+      </div>
+
+      <div id="msgLayer" class="msg-layer"></div>
+    </div>
+
+    <!-- =============== BOTTOM BAR =============== -->
+    <div class="bottom-bar">
+      <section class="card card-actions">
+        <header class="card-header">
+          <span class="card-title">Send</span>
+          <span class="card-sub">$100 per msg</span>
+        </header>
+        <div class="actions">
+          <button id="send1" class="btn btn-primary">+1</button>
+          <button id="send5" class="btn">+5</button>
+          <button id="sendBurst" class="btn btn-danger">Chaos burst</button>
+        </div>
+      </section>
+
+      <section class="card card-fails">
+        <header class="card-header">
+          <span class="card-title">Inject failures</span>
+          <span class="card-sub">real-world simulation</span>
+        </header>
+        <div class="failures-grid">
+          <label class="fail-chip"><input type="checkbox" id="failProducer" /><span>📤 Producer 10%</span></label>
+          <label class="fail-chip"><input type="checkbox" id="failNetwork" /><span>📡 Network 15%</span></label>
+          <label class="fail-chip"><input type="checkbox" id="failAck" /><span>✉️ ACK 20%</span></label>
+          <label class="fail-chip"><input type="checkbox" id="failConsumer" /><span>💥 Crash 15%</span></label>
+        </div>
+      </section>
+
+      <section class="card card-metrics" id="metricsCard">
+        <!-- rendered by JS based on scenario -->
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- ========== LOG ========== -->
 <details class="log-wrapper">
   <summary>📜 Event log</summary>
   <div id="log" class="log"></div>
