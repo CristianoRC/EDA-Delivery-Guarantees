@@ -1,9 +1,5 @@
 <template>
   <main class="stage">
-    <div class="phase-label" :class="{ active: store.phaseActive }">
-      {{ store.phase }}
-    </div>
-
     <div
       ref="stageEl"
       class="stage-grid"
@@ -88,25 +84,6 @@ onMounted(() => {
   min-height: 0;
   min-width: 0;
   padding-bottom: 108px;
-}
-
-.phase-label {
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-dim);
-  background: rgba(22, 31, 51, 0.7);
-  padding: 6px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  align-self: center;
-  font-weight: 500;
-  transition: all 0.3s;
-
-  &.active {
-    color: var(--text);
-    border-color: var(--accent);
-    box-shadow: 0 0 16px rgba(56,189,248,0.25);
-  }
 }
 
 .stage-grid {

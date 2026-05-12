@@ -21,9 +21,7 @@ import { useLogStore } from '@/stores/log'
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  const store = useSimulatorStore()
   const log = useLogStore()
-  store.setPhase("Ready — pick a scenario on the left and click '+1'")
   log.push('✨ Simulator ready.', 'info')
 })
 </script>
