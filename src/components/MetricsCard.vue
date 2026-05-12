@@ -22,6 +22,7 @@
         {{ isDLQ ? 'redelivered' : 'duplicated' }}
       </div>
       <div v-if="isDLQ" class="mini-stat"><span class="dot dot-dlq" /><b>{{ s.deadLettered }}</b> in DLQ</div>
+      <div v-else-if="isInbox" class="mini-stat"><span class="dot dot-inbox" /><b>{{ s.inboxDedups }}</b> deduped</div>
       <div v-else class="mini-stat"><span class="dot dot-red" /><b>{{ s.lost }}</b> lost</div>
     </div>
   </section>
@@ -34,6 +35,7 @@ import { useSimulatorStore } from '@/stores/simulator'
 const store = useSimulatorStore()
 const s = computed(() => store.stats)
 const isDLQ = computed(() => store.isDLQ)
+const isInbox = computed(() => store.isInbox)
 
 const leftTag = computed(() => isDLQ.value ? 'Successfully processed' : 'Expected')
 const leftValue = computed(() => isDLQ.value ? s.value.delivered : `$ ${s.value.expected}`)
@@ -177,4 +179,5 @@ const { text: deltaText, cls: deltaClass } = (() => {
 .dot-yellow { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
 .dot-red { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
 .dot-dlq { background: var(--dlq); box-shadow: 0 0 8px var(--dlq); }
+.dot-inbox { background: var(--inbox); box-shadow: 0 0 8px var(--inbox); }
 </style>

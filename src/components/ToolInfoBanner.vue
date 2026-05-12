@@ -1,6 +1,6 @@
 <template>
   <div class="tool-info">
-    <strong>{{ store.toolConfig.name }}</strong> — <span v-html="store.toolConfig.desc" />
+    <strong>{{ store.toolConfig.name }}</strong>: <span v-html="store.toolConfig.desc" />
   </div>
 </template>
 

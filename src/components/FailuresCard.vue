@@ -2,7 +2,7 @@
   <section class="card card-fails">
     <header class="card-header">
       <span class="card-title">Inject failures</span>
-      <span class="card-sub">{{ store.isOutbox ? 'outbox-specific' : 'real-world simulation' }}</span>
+      <span class="card-sub">{{ subTitle }}</span>
     </header>
     <div class="failures-grid">
       <label v-for="chip in chips" :key="chip.key" class="fail-chip">
@@ -30,7 +30,22 @@ const OUTBOX_CHIPS = [
   { key: 'relayCrash', label: '🛰️ Relay crash 40%' },
 ]
 
-const chips = computed(() => store.isOutbox ? OUTBOX_CHIPS : DEFAULT_CHIPS)
+const INBOX_CHIPS = [
+  { key: 'txAbort', label: '🧨 Tx abort 25%' },
+  { key: 'ackLost', label: '✉️ ACK lost 40%' },
+]
+
+const chips = computed(() => {
+  if (store.isOutbox) return OUTBOX_CHIPS
+  if (store.isInbox) return INBOX_CHIPS
+  return DEFAULT_CHIPS
+})
+
+const subTitle = computed(() => {
+  if (store.isOutbox) return 'outbox-specific'
+  if (store.isInbox) return 'inbox-specific'
+  return 'real-world simulation'
+})
 </script>
 
 <style lang="scss" scoped>

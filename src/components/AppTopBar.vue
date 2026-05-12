@@ -36,7 +36,7 @@
               :value="id"
               :disabled="!store.isToolSupported(id)"
             >
-              {{ store.isToolSupported(id) ? t.name : `${t.name} — not native` }}
+              {{ store.isToolSupported(id) ? t.name : `${t.name} (not native)` }}
             </option>
           </optgroup>
         </select>

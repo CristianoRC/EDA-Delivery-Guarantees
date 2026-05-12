@@ -56,6 +56,19 @@ export const SCENARIOS = {
     defaultTool: 'servicebus',
     category: 'patterns',
   },
+  inbox: {
+    id: 'inbox',
+    name: 'Inbox Pattern',
+    icon: '📥',
+    blurb: 'Consumer-side dedup via atomic inbox table.',
+    mode: 'at-least-once',
+    showIdempotency: false,
+    showDLQ: false,
+    showOutbox: false,
+    showInbox: true,
+    defaultTool: 'servicebus',
+    category: 'patterns',
+  },
 }
 
 export const CATEGORIES = [
@@ -69,16 +82,7 @@ export const CATEGORIES = [
     id: 'patterns',
     title: 'Reliability Patterns',
     dotClass: 'cat-dot-patterns',
-    scenarios: ['dlq', 'outbox'],
-  },
-  {
-    id: 'soon',
-    title: 'Coming Soon',
-    dotClass: 'cat-dot-soon',
-    disabled: true,
-    scenarios: [
-      { icon: '📥', name: 'Inbox Pattern', blurb: 'Consumer-side dedup store' },
-    ],
+    scenarios: ['dlq', 'outbox', 'inbox'],
   },
 ]
 

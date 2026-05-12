@@ -24,17 +24,6 @@
           @select="store.setScenario(id)"
         />
       </scenario-category>
-
-      <scenario-category title="Coming Soon" dot-class="cat-dot-soon">
-        <scenario-item
-          v-for="s in CATEGORIES[2].scenarios"
-          :key="s.name"
-          :icon="s.icon"
-          :title="s.name"
-          :blurb="s.blurb"
-          disabled
-        />
-      </scenario-category>
     </div>
 
     <div class="sidebar-section">

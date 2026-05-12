@@ -20,6 +20,7 @@
   --db: #{v.$db};
   --dlq: #{v.$dlq};
   --outbox: #{v.$outbox};
+  --inbox: #{v.$inbox};
 }
 
 * { box-sizing: border-box; }

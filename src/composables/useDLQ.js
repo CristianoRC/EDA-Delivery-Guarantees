@@ -12,7 +12,7 @@ export function useDLQ() {
     const id = `msg-${logicalId}`
     const isPoison = forcePoison || Math.random() * 100 < store.poisonRate
     const label = `${isPoison ? '☠️' : '📩'} #${logicalId}`
-    const reason = forcePoison ? ' (POISON — invalid payload)' : (isPoison ? ' (POISON)' : '')
+    const reason = forcePoison ? ' (POISON, invalid payload)' : (isPoison ? ' (POISON)' : '')
     log.push(`📤 Producer: published ${id}${reason}`, 'info')
     await dlqAttempt(id, label, isPoison, 1)
   }
@@ -51,7 +51,7 @@ export function useDLQ() {
 
     store.crash('consumer')
     if (isPoison) {
-      log.push(`☠️ Consumer: ${id} is POISON — processing failed (attempt ${deliveryCount})`, 'danger')
+      log.push(`☠️ Consumer: ${id} is POISON, processing failed (attempt ${deliveryCount})`, 'danger')
     } else {
       log.push(`💥 Consumer crashed processing ${id} (attempt ${deliveryCount})`, 'danger')
     }
@@ -59,7 +59,7 @@ export function useDLQ() {
     await sleep(400)
 
     if (deliveryCount >= store.maxDeliveryCount) {
-      store.setPhase(`Max retries hit — moving ${id} to DLQ`)
+      store.setPhase(`Max retries hit, moving ${id} to DLQ`)
       log.push(`🪦 Broker: ${id} exceeded MaxDeliveryCount (${store.maxDeliveryCount}) → DLQ`, 'danger')
       await animateMsg('broker', 'dlq', label, 'dead')
       store.flash('dlq')

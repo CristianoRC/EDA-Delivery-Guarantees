@@ -6,6 +6,7 @@
       :class="{
         'dlq-mode': store.scenarioConfig.showDLQ,
         'outbox-mode': store.scenarioConfig.showOutbox,
+        'inbox-mode': store.scenarioConfig.showInbox,
       }"
     >
       <pipeline-node
@@ -44,10 +45,25 @@
         variant="consumer"
         icon="⚙️"
         label="CONSUMER"
+        :desc="store.isInbox ? 'dedup via inbox + atomic write' : ''"
         stat-label="processed"
         :stat-value="store.stats.processed"
       />
       <div class="arrow">→</div>
+
+      <template v-if="store.scenarioConfig.showInbox">
+        <pipeline-node
+          variant="inbox"
+          icon="📥"
+          label="INBOX"
+          desc="processed message_ids"
+          stat-label="rows"
+          :stat-value="store.stats.inboxRows"
+          stat-class="inbox-stat"
+        />
+        <div class="arrow">→</div>
+      </template>
+
       <pipeline-node
         variant="db"
         icon="💾"
@@ -83,6 +99,12 @@
         <div class="relay-arrow">
           <span class="relay-line">{{ relayLineLabel }}</span>
           <span class="relay-tip">↓</span>
+        </div>
+      </template>
+
+      <template v-if="store.scenarioConfig.showInbox">
+        <div class="inbox-banner">
+          <span class="inbox-banner-line">🛡️ atomic tx: INSERT inbox + UPDATE balance</span>
         </div>
       </template>
 
@@ -198,6 +220,39 @@ onMounted(() => {
       color: var(--outbox);
       font-size: 18px;
       line-height: 1;
+    }
+  }
+
+  &.inbox-mode {
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 4px 6px;
+
+    :deep(.node-producer),
+    :deep(.node-broker),
+    :deep(.node-consumer),
+    :deep(.node-inbox),
+    :deep(.node-db) { grid-row: 2; }
+    .arrow { grid-row: 2; }
+
+    .inbox-banner {
+      grid-column: 5 / span 5;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 0 4px 0;
+    }
+    .inbox-banner-line {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--inbox);
+      font-weight: 700;
+      background: rgba(94, 234, 212, 0.12);
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(94, 234, 212, 0.3);
     }
   }
 }

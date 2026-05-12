@@ -51,7 +51,17 @@
           @input="store.poisonRate = Number($event.target.value)"
         />
         <span class="setting-hint">
-          Percentage of messages that always fail processing — they will be dead-lettered.
+          Percentage of messages that always fail processing. They will be dead-lettered.
+        </span>
+      </div>
+    </template>
+
+    <template v-if="sc.showInbox">
+      <div class="setting-row">
+        <span class="setting-label">Inbox table</span>
+        <span class="setting-hint">
+          Consumer wraps <code>INSERT INTO inbox(message_id)</code> + business <code>UPDATE</code> in a single transaction.
+          On retry, a <code>SELECT</code> on <code>message_id</code> short-circuits duplicate effects. Survives restarts unlike an in-memory <code>Set</code>.
         </span>
       </div>
     </template>
@@ -82,13 +92,13 @@
           </template>
           <strong v-else>CDC (Change Data Capture):</strong>
           <template v-if="store.outboxMode === 'cdc'">
-            a connector tails the database's transaction log and emits a change event for every row inserted into the outbox — no polling, near-realtime, no extra DB load.
+            a connector tails the database's transaction log and emits a change event for every row inserted into the outbox. No polling, near-realtime, no extra DB load.
           </template>
         </span>
       </div>
     </template>
 
-    <span v-if="!sc.showIdempotency && !sc.showDLQ && !sc.showOutbox" class="setting-hint" style="font-size:11px;">
+    <span v-if="!sc.showIdempotency && !sc.showDLQ && !sc.showOutbox && !sc.showInbox" class="setting-hint" style="font-size:11px;">
       No extra settings for this scenario. Just inject failures and watch what happens.
     </span>
   </div>
@@ -195,4 +205,5 @@ const sc = computed(() => store.scenarioConfig)
     box-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
   }
 }
+
 </style>

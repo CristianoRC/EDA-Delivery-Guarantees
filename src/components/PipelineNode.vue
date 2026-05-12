@@ -26,7 +26,7 @@ const props = defineProps({
   variant: {
     type: String,
     required: true,
-    validator: (v) => ['producer', 'broker', 'consumer', 'db', 'dlq', 'outbox', 'relay'].includes(v),
+    validator: (v) => ['producer', 'broker', 'consumer', 'db', 'dlq', 'outbox', 'relay', 'inbox'].includes(v),
   },
   icon: { type: String, required: true },
   label: { type: String, required: true },
@@ -69,6 +69,7 @@ onMounted(() => {
     border-color: var(--outbox);
     border-style: dashed;
   }
+  &.node-inbox { border-color: var(--inbox); }
 
   &.flash { animation: flash 0.6s ease; }
   &.crash { animation: crash 0.6s ease; }
@@ -114,6 +115,7 @@ onMounted(() => {
   &.balance b { color: var(--ok); font-size: 18px; }
   &.dlq-stat b { color: var(--dlq); font-size: 18px; }
   &.outbox-stat b { color: var(--outbox); font-size: 18px; }
+  &.inbox-stat b { color: var(--inbox); font-size: 18px; }
 }
 
 @keyframes flash {

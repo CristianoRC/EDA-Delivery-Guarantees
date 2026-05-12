@@ -3,6 +3,7 @@ import { useLogStore } from '@/stores/log'
 import { animateMsg, sleep } from './useAnimation'
 import { useDLQ } from './useDLQ'
 import { useOutbox } from './useOutbox'
+import { useInbox } from './useInbox'
 
 const MAX_RETRIES = 3
 
@@ -11,10 +12,12 @@ export function useDelivery() {
   const log = useLogStore()
   const dlq = useDLQ()
   const outbox = useOutbox()
+  const inbox = useInbox()
 
   async function sendLogicalMessage(amount = 100) {
     if (store.isDLQ) return dlq.sendDLQMessage()
     if (store.isOutbox) return outbox.sendOutboxMessage(amount)
+    if (store.isInbox) return inbox.sendInboxMessage(amount)
 
     store.stats.logicalSent++
     store.stats.expected += amount
@@ -83,7 +86,7 @@ export function useDelivery() {
 
     const isDuplicate = store.processedKeys.has(idempotencyKey)
     if (store.idempotency && isDuplicate) {
-      log.push(`🛡️ Consumer: ${idempotencyKey} already processed — discarded (idempotency)`, 'ok')
+      log.push(`🛡️ Consumer: ${idempotencyKey} already processed, discarded (idempotency)`, 'ok')
       store.stats.duplicated++
       await sleep(200)
       return sendAck(idempotencyKey, label, mode, logicalId, amount)
@@ -155,6 +158,7 @@ export function useDelivery() {
 
   async function sendBatch(count = 5) {
     if (store.isOutbox) return outbox.sendBatch(count)
+    if (store.isInbox) return inbox.sendBatch(count)
     for (let i = 0; i < count; i++) {
       sendLogicalMessage(100)
       await sleep(Math.max(300, store.speed * 0.5))

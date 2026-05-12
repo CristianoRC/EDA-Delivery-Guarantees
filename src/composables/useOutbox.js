@@ -22,7 +22,7 @@ export function useOutbox() {
 
     store.setPhase(`Producer: BEGIN tx for ${idempotencyKey}`)
     store.flash('producer')
-    log.push(`📤 Producer: BEGIN tx — credit $${amount} + INSERT INTO outbox (${idempotencyKey})`, 'info')
+    log.push(`📤 Producer: BEGIN tx: credit $${amount} + INSERT INTO outbox (${idempotencyKey})`, 'info')
 
     const willRollback = store.fails.dbCommit && Math.random() < DB_COMMIT_FAIL_RATE
 
@@ -30,7 +30,7 @@ export function useOutbox() {
 
     if (willRollback) {
       store.crash('outbox')
-      log.push(`❌ DB: COMMIT failed for ${idempotencyKey} — biz + outbox writes rolled back (atomic guarantee)`, 'danger')
+      log.push(`❌ DB: COMMIT failed for ${idempotencyKey}, biz + outbox writes rolled back (atomic guarantee)`, 'danger')
       store.stats.lost++
       return
     }
@@ -39,7 +39,7 @@ export function useOutbox() {
     store.stats.expected += amount
     store.outboxRows.push({ id: logicalId, idempotencyKey, amount, label, attempts: 0 })
     store.stats.outboxPending = store.outboxRows.length
-    log.push(`✅ DB: COMMIT — biz state + outbox row persisted atomically`, 'ok')
+    log.push(`✅ DB: COMMIT: biz state + outbox row persisted atomically`, 'ok')
 
     if (store.outboxMode === 'cdc') {
       scheduleCDC()
@@ -144,7 +144,7 @@ export function useOutbox() {
     const willCrash = store.fails.relayCrash && Math.random() < RELAY_CRASH_RATE
     if (willCrash) {
       store.crash('relay')
-      log.push(`💥 ${relayKind} crashed AFTER broker ACK, BEFORE mark — outbox row stays pending, broker already has the message → duplicate guaranteed on re-poll`, 'danger')
+      log.push(`💥 ${relayKind} crashed AFTER broker ACK, BEFORE mark: outbox row stays pending, broker already has the message → duplicate guaranteed on re-poll`, 'danger')
     } else {
       if (isCDC) {
         log.push(`✓ CDC: checkpoint advanced past ${row.idempotencyKey} (tx-log offset committed)`, 'ok')

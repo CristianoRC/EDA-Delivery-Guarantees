@@ -10,7 +10,7 @@
       <button
         v-if="store.isDLQ"
         class="btn btn-poison"
-        title="Sends a message with invalid payload — guaranteed to fail and end up in the DLQ"
+        title="Sends a message with invalid payload, guaranteed to fail and end up in the DLQ"
         @click="delivery.sendPoisonMessage()"
       >
         ☠️ Send poison
@@ -22,6 +22,14 @@
         @click="outboxStress"
       >
         📦 Stress relay
+      </button>
+      <button
+        v-else-if="store.isInbox"
+        class="btn btn-inbox"
+        title="Send 10 messages with broker redelivery and tx abort enabled, inbox should keep balance correct"
+        @click="inboxStress"
+      >
+        📥 Stress inbox
       </button>
       <button v-else class="btn btn-danger" @click="delivery.chaosBurst()">Chaos burst</button>
     </div>
@@ -41,6 +49,7 @@ const log = useLogStore()
 const subTitle = computed(() => {
   if (store.isDLQ) return 'message to broker'
   if (store.isOutbox) return 'tx + outbox row'
+  if (store.isInbox) return 'broker → inbox dedup'
   return '$100 per msg'
 })
 
@@ -48,6 +57,13 @@ function outboxStress() {
   store.fails.dbCommit = true
   store.fails.relayCrash = true
   log.push('🌪️ Stress relay: 10 messages with DB-commit and relay-crash failures enabled', 'warn')
+  delivery.sendBatch(10)
+}
+
+function inboxStress() {
+  store.fails.txAbort = true
+  store.fails.ackLost = true
+  log.push('🌪️ Stress inbox: 10 messages with tx-abort and ACK-loss failures enabled, balance must stay correct', 'warn')
   delivery.sendBatch(10)
 }
 </script>
@@ -81,6 +97,17 @@ function outboxStress() {
     &:hover {
       filter: brightness(1.1);
       box-shadow: 0 0 12px rgba(167, 139, 250, 0.4);
+    }
+  }
+  .btn-inbox {
+    grid-column: span 2;
+    background: var(--inbox, #5eead4);
+    color: #0b1220;
+    border-color: transparent;
+    font-weight: 700;
+    &:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 0 12px rgba(94, 234, 212, 0.4);
     }
   }
 }

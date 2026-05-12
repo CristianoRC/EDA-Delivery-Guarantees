@@ -22,6 +22,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
     consumer: false,
     dbCommit: false,
     relayCrash: false,
+    txAbort: false,
+    ackLost: false,
   })
 
   const stats = reactive({
@@ -37,12 +39,16 @@ export const useSimulatorStore = defineStore('simulator', () => {
     processed: 0,
     outboxPending: 0,
     outboxPublished: 0,
+    inboxRows: 0,
+    inboxDedups: 0,
+    txRollbacks: 0,
     msgIdCounter: 0,
   })
 
   const processedKeys = new Set()
   const brokerSeen = new Set()
   const outboxRows = reactive([])
+  const inboxKeys = reactive(new Set())
 
   const phase = ref('Ready')
   const phaseActive = ref(false)
@@ -56,6 +62,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     dlq: false,
     outbox: false,
     relay: false,
+    inbox: false,
   })
   const crashing = reactive({
     producer: false,
@@ -65,6 +72,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     dlq: false,
     outbox: false,
     relay: false,
+    inbox: false,
   })
 
   const scenarioConfig = computed(() => SCENARIOS[scenario.value])
@@ -73,6 +81,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   const isDLQ = computed(() => scenario.value === 'dlq')
   const isOutbox = computed(() => scenario.value === 'outbox')
+  const isInbox = computed(() => scenario.value === 'inbox')
   const balanceDiff = computed(() => stats.balance - stats.expected)
 
   function setPhase(text) {
@@ -119,7 +128,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   function setOutboxMode(val) {
     outboxMode.value = val
-    log.push(`🛰️ Outbox relay: ${val === 'cdc' ? 'CDC — tails the DB transaction log' : 'Polling — SELECT outbox at fixed interval'}`, 'info')
+    log.push(`🛰️ Outbox relay: ${val === 'cdc' ? 'CDC, tails the DB transaction log' : 'Polling, SELECT outbox at fixed interval'}`, 'info')
   }
 
   function isToolSupported(toolId) {
@@ -142,11 +151,15 @@ export const useSimulatorStore = defineStore('simulator', () => {
       processed: 0,
       outboxPending: 0,
       outboxPublished: 0,
+      inboxRows: 0,
+      inboxDedups: 0,
+      txRollbacks: 0,
       msgIdCounter: 0,
     })
     processedKeys.clear()
     brokerSeen.clear()
     outboxRows.splice(0, outboxRows.length)
+    inboxKeys.clear()
     log.reset()
     setPhase('Ready')
     log.push('🔄 Simulation reset', 'info')
@@ -158,9 +171,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   return {
     scenario, tool, speed, idempotency, maxDeliveryCount, poisonRate, outboxMode,
-    fails, stats, processedKeys, brokerSeen, outboxRows,
+    fails, stats, processedKeys, brokerSeen, outboxRows, inboxKeys,
     phase, phaseActive, flashing, crashing,
-    scenarioConfig, toolConfig, mode, isDLQ, isOutbox, balanceDiff,
+    scenarioConfig, toolConfig, mode, isDLQ, isOutbox, isInbox, balanceDiff,
     setPhase, flash, crash, setScenario, setTool, setIdempotency, setOutboxMode,
     isToolSupported, reset, nextMsgId,
   }

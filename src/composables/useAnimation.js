@@ -9,6 +9,7 @@ const nodes = {
   dlq: null,
   outbox: null,
   relay: null,
+  inbox: null,
 }
 let stageEl = null
 let layerEl = null
