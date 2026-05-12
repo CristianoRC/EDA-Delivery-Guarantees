@@ -30,7 +30,7 @@ export function useOutbox() {
 
     if (willRollback) {
       store.crash('outbox')
-      log.push(`❌ DB: COMMIT failed — ROLLBACK on ${idempotencyKey}. No biz write, no outbox row (atomic guarantee)`, 'danger')
+      log.push(`❌ DB: COMMIT failed for ${idempotencyKey} — biz + outbox writes rolled back (atomic guarantee)`, 'danger')
       store.stats.lost++
       return
     }
@@ -39,7 +39,7 @@ export function useOutbox() {
     store.stats.expected += amount
     store.outboxRows.push({ id: logicalId, idempotencyKey, amount, label, attempts: 0 })
     store.stats.outboxPending = store.outboxRows.length
-    log.push(`✅ DB: COMMIT — business state + outbox row persisted atomically`, 'ok')
+    log.push(`✅ DB: COMMIT — biz state + outbox row persisted atomically`, 'ok')
 
     if (store.outboxMode === 'cdc') {
       scheduleCDC()
@@ -64,6 +64,7 @@ export function useOutbox() {
 
     store.setPhase(`Polling worker: scanning outbox table`)
     log.push(`🛰️ Poll: SELECT * FROM outbox WHERE published_at IS NULL → ${batchSize} row(s)`, 'info')
+    await animateRelayQuery('SELECT pending')
 
     while (store.isOutbox && store.outboxRows.length > 0) {
       const row = store.outboxRows[0]
@@ -84,6 +85,8 @@ export function useOutbox() {
     if (!store.isOutbox || relayBusy) return
     relayBusy = true
 
+    await animateRelayQuery('tail tx-log')
+
     while (store.isOutbox && store.outboxRows.length > 0) {
       const row = store.outboxRows[0]
       store.setPhase(`CDC: streaming change for ${row.idempotencyKey}`)
@@ -103,6 +106,13 @@ export function useOutbox() {
     store.stats.outboxPublished++
   }
 
+  async function animateRelayQuery(label) {
+    if (!store.isOutbox) return
+    store.flash('relay')
+    await animateMsg('relay', 'outbox', label, 'query')
+    store.flash('outbox')
+  }
+
   async function publishRow(row) {
     row.attempts++
     const cls = row.attempts > 1 ? 'dup' : ''
@@ -119,16 +129,22 @@ export function useOutbox() {
     store.stats.physicalSent++
     await animateMsg('relay', 'broker', row.label, cls, false, halfSpeed)
     store.flash('broker')
-    log.push(`📨 Broker: received ${row.idempotencyKey}${row.attempts > 1 ? ` (republish #${row.attempts})` : ''}`, 'dim')
+    log.push(`📨 Broker: received ${row.idempotencyKey}${row.attempts > 1 ? ` (republish #${row.attempts})` : ''}, persisting…`, 'dim')
     store.stats.queue++
-    await sleep(150)
 
-    // Critical step: relay must mark the row as published AFTER broker confirms.
-    // If it crashes between publish and mark, the row stays pending → duplicate on re-poll.
+    // Broker confirms durable receipt back to the relay (publish ACK).
+    // Full speed (not halfSpeed) — this is the key handshake that decides whether
+    // the relay can safely mark the outbox row, so it should be visible.
+    await animateMsg('broker', 'relay', 'CONFIRMED', 'ack')
+    store.flash('relay')
+    log.push(`✓ Broker → ${relayKind}: publish confirmed (message durable in broker)`, 'dim')
+
+    // Critical crash window: relay has the broker ACK in hand but hasn't marked outbox yet.
+    // If it crashes here, the row stays pending → duplicate on re-poll.
     const willCrash = store.fails.relayCrash && Math.random() < RELAY_CRASH_RATE
     if (willCrash) {
       store.crash('relay')
-      log.push(`💥 ${relayKind} crashed AFTER publish, BEFORE mark — outbox row stays pending, broker already has the message → duplicate guaranteed on re-poll`, 'danger')
+      log.push(`💥 ${relayKind} crashed AFTER broker ACK, BEFORE mark — outbox row stays pending, broker already has the message → duplicate guaranteed on re-poll`, 'danger')
     } else {
       if (isCDC) {
         log.push(`✓ CDC: checkpoint advanced past ${row.idempotencyKey} (tx-log offset committed)`, 'ok')

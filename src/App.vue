@@ -69,5 +69,11 @@ onMounted(() => {
     box-shadow: 0 4px 20px rgba(239,68,68,0.5), 0 0 0 3px rgba(239,68,68,0.3);
   }
   &.dead::before { content: "🪦"; }
+  &.query {
+    background: rgba(167, 139, 250, 0.85);
+    color: #0b1220;
+    box-shadow: 0 4px 20px rgba(167,139,250,0.5), 0 0 0 3px rgba(167,139,250,0.25);
+  }
+  &.query::before { content: "🔍"; }
 }
 </style>
