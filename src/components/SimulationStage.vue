@@ -110,7 +110,6 @@ onMounted(() => {
       text-align: center;
       font-size: 20px;
       color: var(--dlq);
-      font-weight: 300;
     }
     :deep(.node-dlq) {
       grid-column: 3;
@@ -122,6 +121,5 @@ onMounted(() => {
 .arrow {
   font-size: 24px;
   color: var(--border);
-  font-weight: 300;
 }
 </style>
