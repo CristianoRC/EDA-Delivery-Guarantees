@@ -1,0 +1,24 @@
+{
+  "name": "delivery-guarantees",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Interactive Delivery Guarantees simulator for EDA classes — Vue 3 + Vuetify",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vuetify": "^3.7.6"
+  },
+  "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "sass-embedded": "^1.82.0",
+    "vite": "^6.0.5",
+    "vite-plugin-vuetify": "^2.0.4"
+  }
+}

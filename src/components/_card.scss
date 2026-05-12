@@ -1,0 +1,49 @@
+// Shared styling for cards used in the bottom bar.
+// Import via `@use '@/components/_card' as *;` to inherit card/button visuals.
+
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.card-sub {
+  font-size: 10px;
+  color: var(--text-dimmer);
+}
+
+.btn {
+  background: var(--bg-panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  &:hover { border-color: var(--accent); }
+  &.btn-primary { background: var(--accent); color: #0b1220; border-color: var(--accent); }
+  &.btn-primary:hover { background: #0ea5e9; }
+  &.btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+}

@@ -1,0 +1,53 @@
+@use './variables' as v;
+
+:root {
+  --bg: #{v.$bg};
+  --bg-panel: #{v.$bg-panel};
+  --bg-panel-2: #{v.$bg-panel-2};
+  --bg-panel-3: #{v.$bg-panel-3};
+  --border: #{v.$border};
+  --border-soft: #{v.$border-soft};
+  --text: #{v.$text};
+  --text-dim: #{v.$text-dim};
+  --text-dimmer: #{v.$text-dimmer};
+  --accent: #{v.$accent};
+  --ok: #{v.$ok};
+  --warn: #{v.$warn};
+  --danger: #{v.$danger};
+  --producer: #{v.$producer};
+  --broker: #{v.$broker};
+  --consumer: #{v.$consumer};
+  --db: #{v.$db};
+  --dlq: #{v.$dlq};
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background:
+    radial-gradient(ellipse at top left, rgba(56,189,248,0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(167,139,250,0.06), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Neutralize Vuetify's default app background so our gradient shows through.
+.v-application,
+.v-application__wrap {
+  background: transparent !important;
+  min-height: 0 !important;
+}
+
+// Buttons used as generic shells should be transparent.
+.v-btn--variant-text { background: transparent; }

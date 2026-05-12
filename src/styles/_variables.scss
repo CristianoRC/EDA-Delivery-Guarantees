@@ -1,0 +1,21 @@
+// Shared SCSS variables mirroring the original CSS custom properties.
+// Components can `@use '@/styles/variables' as v;` and reference v.$accent etc.
+
+$bg: #0b1220;
+$bg-panel: #161f33;
+$bg-panel-2: #1f2a44;
+$bg-panel-3: #2a3552;
+$border: #2a3552;
+$border-soft: #1f2a44;
+$text: #e8edf7;
+$text-dim: #8a96b3;
+$text-dimmer: #5e6b8a;
+$accent: #38bdf8;
+$ok: #4ade80;
+$warn: #fbbf24;
+$danger: #f87171;
+$producer: #38bdf8;
+$broker: #a78bfa;
+$consumer: #fb923c;
+$db: #4ade80;
+$dlq: #ef4444;
