@@ -33,6 +33,7 @@ export const ICONS = {
   // UI affordances
   log: 'mdi:format-list-bulleted-square',
   github: 'mdi:github',
+  reset: 'mdi:refresh',
   chaos: 'mdi:weather-tornado',
   stress: 'mdi:lightning-bolt',
   network: 'mdi:wifi-strength-alert-outline',

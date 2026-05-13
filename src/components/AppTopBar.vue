@@ -56,7 +56,14 @@
         </select>
       </div>
 
-      <button class="btn btn-ghost" @click="store.reset()">Reset</button>
+      <button
+        class="btn btn-icon"
+        @click="store.reset()"
+        title="Reset"
+        aria-label="Reset"
+      >
+        <Icon :icon="ICONS.reset" />
+      </button>
 
       <a
         class="btn btn-ghost btn-icon github-link"
