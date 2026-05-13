@@ -4,19 +4,11 @@
       <span class="card-title">Send</span>
       <span class="card-sub">{{ subTitle }}</span>
     </header>
-    <div class="actions" :class="{ 'dlq-actions': store.isDLQ }">
+    <div class="actions">
       <button class="btn btn-primary" @click="delivery.sendLogicalMessage(100)">+1</button>
       <button class="btn" @click="delivery.sendBatch(5)">+5</button>
       <button
-        v-if="store.isDLQ"
-        class="btn btn-poison"
-        title="Sends a message with invalid payload, guaranteed to fail and end up in the DLQ"
-        @click="delivery.sendPoisonMessage()"
-      >
-        <Icon :icon="ICONS.poison" class="btn-icon" /> Send poison
-      </button>
-      <button
-        v-else-if="store.isOutbox"
+        v-if="store.isOutbox"
         class="btn btn-outbox"
         title="Send 10 messages with both outbox failures enabled"
         @click="outboxStress"
@@ -31,7 +23,7 @@
       >
         <Icon :icon="ICONS.scenarioInbox" class="btn-icon" /> Stress inbox
       </button>
-      <button v-else class="btn btn-danger" @click="delivery.chaosBurst()">
+      <button v-else-if="!store.isDLQ" class="btn btn-danger" @click="delivery.chaosBurst()">
         <Icon :icon="ICONS.chaos" class="btn-icon" /> Chaos burst
       </button>
     </div>

@@ -40,15 +40,21 @@ const INBOX_CHIPS = [
   { key: 'ackLost', icon: ICONS.ackFail, label: 'ACK lost 40%' },
 ]
 
+const DLQ_CHIPS = [
+  { key: 'poison', icon: ICONS.poison, label: 'Poison 100%' },
+]
+
 const chips = computed(() => {
   if (store.isOutbox) return OUTBOX_CHIPS
   if (store.isInbox) return INBOX_CHIPS
+  if (store.isDLQ) return DLQ_CHIPS
   return DEFAULT_CHIPS
 })
 
 const subTitle = computed(() => {
   if (store.isOutbox) return 'outbox-specific'
   if (store.isInbox) return 'inbox-specific'
+  if (store.isDLQ) return 'dlq-specific'
   return 'real-world simulation'
 })
 </script>

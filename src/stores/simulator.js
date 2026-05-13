@@ -22,6 +22,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     consumer: false,
     consumerDown: false,
     consumerOverload: false,
+    poison: false,
     dbCommit: false,
     relayCrash: false,
     txAbort: false,
