@@ -42,6 +42,7 @@ Each tool exposes only the guarantees / DLQ behavior it actually supports native
 ### Others
 * **RabbitMQ**: `publisher confirms` + `manual ack`; **native DLX** (Dead Letter Exchange) on nack/reject/TTL.
 * **Apache Kafka**: full EOS via idempotent producer + transactions; **no native DLQ** (common pattern: dedicated dead letter topic).
+* **Redis Pub/Sub**: fire and forget on channels; no persistence, no ACK, no DLQ. **At most once only** (for at least once, use Redis Streams + consumer groups instead).
 
 ## Injectable failures
 

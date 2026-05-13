@@ -69,6 +69,16 @@ export const TOOLS = {
     supportsDLQ: false,
     group: 'Others',
   },
+  'redis-pubsub': {
+    name: 'Redis Pub/Sub',
+    brokerLabel: 'REDIS PUB/SUB',
+    brokerDesc: 'Channels (fire-and-forget)',
+    icon: 'logos:redis',
+    desc: "<strong>Default:</strong> at-most-once. No persistence, no ACK, no retry: if the subscriber isn't connected when <code>PUBLISH</code> happens, the message is lost. <strong>No native DLQ</strong>, no dedup. For at-least-once on Redis, use <strong>Redis Streams</strong> + consumer groups instead.",
+    supports: ['at-most-once'],
+    supportsDLQ: false,
+    group: 'Others',
+  },
 }
 
 export const TOOL_GROUPS = ['Azure', 'Others']
