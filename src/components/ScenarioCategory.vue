@@ -48,7 +48,7 @@ defineProps({
   display: inline-block;
 
   &.cat-dot-guarantees { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-  &.cat-dot-patterns { background: var(--dlq); box-shadow: 0 0 6px var(--dlq); }
+  &.cat-dot-patterns { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
   &.cat-dot-soon { background: var(--text-dimmer); }
 }
 

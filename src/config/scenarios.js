@@ -89,7 +89,7 @@ export const CATEGORIES = [
 ]
 
 export const SPEEDS = [
-  { label: 'Slow', value: 2200 },
-  { label: 'Normal', value: 1400 },
-  { label: 'Fast', value: 700 },
+  { label: 'Slow', value: 2200, icon: ICONS.speedSlow, color: 'var(--ok)' },
+  { label: 'Normal', value: 1400, icon: ICONS.speedNormal, color: 'var(--accent)' },
+  { label: 'Fast', value: 700, icon: ICONS.speedFast, color: 'var(--warn)' },
 ]

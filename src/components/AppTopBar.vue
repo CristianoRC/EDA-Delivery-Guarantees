@@ -47,13 +47,16 @@
 
       <div class="control-group">
         <label>Speed</label>
-        <select
-          class="select small"
-          :value="store.speed"
-          @change="store.speed = Number($event.target.value)"
-        >
-          <option v-for="s in SPEEDS" :key="s.value" :value="s.value">{{ s.label }}</option>
-        </select>
+        <div class="tool-select-wrap">
+          <Icon :icon="speedConfig.icon" class="tool-select-icon" :style="{ color: speedConfig.color }" />
+          <select
+            class="select small tool-select"
+            :value="store.speed"
+            @change="store.speed = Number($event.target.value)"
+          >
+            <option v-for="s in SPEEDS" :key="s.value" :value="s.value">{{ s.label }}</option>
+          </select>
+        </div>
       </div>
 
       <button
@@ -80,6 +83,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { TOOLS, TOOL_GROUPS } from '@/config/tools'
@@ -87,6 +91,10 @@ import { SPEEDS } from '@/config/scenarios'
 import { ICONS } from '@/config/icons'
 
 const store = useSimulatorStore()
+
+const speedConfig = computed(
+  () => SPEEDS.find((s) => s.value === store.speed) ?? SPEEDS[1],
+)
 
 function toolsByGroup(group) {
   return Object.fromEntries(
