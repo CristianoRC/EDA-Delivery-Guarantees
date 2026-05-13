@@ -8,8 +8,8 @@
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://eda.cristianoprogramador.com/og-image.png</image:loc>
-      <image:title>Delivery Guarantees Simulator — Event-Driven Architecture</image:title>
-      <image:caption>Producer, Broker, Consumer and Database flow with at-most-once, at-least-once, exactly-once, idempotency and DLQ.</image:caption>
+      <image:title>EDA Simulator — Event-Driven Architecture Patterns</image:title>
+      <image:caption>Producer, Broker, Consumer and Database flow with delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns.</image:caption>
     </image:image>
   </url>
 </urlset>

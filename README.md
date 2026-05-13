@@ -1,13 +1,15 @@
-# Delivery Guarantees Simulator (Event Driven Architecture)
+<img src="public/icon.svg" alt="EDA Simulator logo" width="64" />
+
+# EDA Simulator
 
 > ⚠️ **Work in Progress**
 >
 > This project is under active development. Scenarios, brokers and visual
-> behavior may change without notice. New patterns (Outbox, Saga, Retry with
-> Backoff) are planned and existing flows are still being refined. Use it for
-> learning and exploration; expect rough edges and breaking changes.
+> behavior may change without notice. New patterns (Saga, Retry with Backoff)
+> are planned and existing flows are still being refined. Use it for learning
+> and exploration; expect rough edges and breaking changes.
 
-An interactive, browser based simulator built for **teaching delivery guarantees in EDA**. Visualizes the full `Producer → Broker → Consumer → DB` flow with animated messages, injectable failures, and contextual metrics, so the bug caused by missing idempotency (or a poison message reaching the DLQ) becomes obvious in real time.
+Browser-based simulator for **Event-Driven Architecture**. Visualizes the full `Producer → Broker → Consumer → DB` flow with animated messages, injectable failures and contextual metrics, so the bug caused by missing idempotency (or a poison message reaching the DLQ) becomes obvious in real time.
 
 Built with Vue 3 + Vuetify + Pinia + Vite. Run `npm install && npm run dev` to start locally, or open the deployed site.
 
@@ -92,3 +94,13 @@ Runs entirely client side. No backend, no analytics, no external API calls.
 * **Consumer side idempotency** is modeled as a `Set<idempotencyKey>` (Redis / inbox table).
 * **Broker side dedup** (exactly once) is a separate `Set` (Service Bus duplicate detection / Kafka idempotent producer).
 * **DLQ logic** tracks `deliveryCount` per message; when it hits `maxDeliveryCount`, the broker animates the message to the DLQ node instead of redelivering.
+
+## Contributing
+
+Found a bug, have an idea for a new scenario, or spotted something confusing? Jump in! 🎉
+
+1. Fork the repo and create a branch.
+2. Make your change (a new scenario, a fix, even a typo counts).
+3. Open a PR and tell us what you tried.
+
+Not sure where to start? Open an issue and let's chat about it first. All skill levels welcome.

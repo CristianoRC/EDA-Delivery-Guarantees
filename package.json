@@ -1,12 +1,13 @@
 {
-  "name": "delivery-guarantees",
+  "name": "eda-simulator",
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Interactive Delivery Guarantees simulator for Event-Driven Architecture classes — visualizes at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Apache Kafka. Built with Vue 3 + Vuetify.",
+  "description": "Browser-based simulator for Event-Driven Architecture. Visualize delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns in real time. Built with Vue 3 + Vuetify.",
   "keywords": [
     "event-driven-architecture",
     "eda",
+    "eda-simulator",
     "delivery-guarantees",
     "at-most-once",
     "at-least-once",
@@ -14,6 +15,8 @@
     "idempotency",
     "dead-letter-queue",
     "dlq",
+    "outbox-pattern",
+    "inbox-pattern",
     "message-broker",
     "azure-service-bus",
     "azure-event-hubs",
@@ -34,10 +37,10 @@
   "homepage": "https://eda.cristianoprogramador.com/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CristianoRC/EDA-Delivery-Guarantees.git"
+    "url": "git+https://github.com/CristianoRC/EDA-Simulator.git"
   },
   "bugs": {
-    "url": "https://github.com/CristianoRC/EDA-Delivery-Guarantees/issues"
+    "url": "https://github.com/CristianoRC/EDA-Simulator/issues"
   },
   "scripts": {
     "dev": "vite",

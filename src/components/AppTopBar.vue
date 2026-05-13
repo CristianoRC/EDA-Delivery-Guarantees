@@ -16,8 +16,8 @@
         </svg>
       </span>
       <div>
-        <h1>Delivery Guarantees in EDA</h1>
-        <p class="subtitle">Producer → Broker → Consumer → DB</p>
+        <h1>EDA Simulator</h1>
+        <p class="subtitle">Event-Driven Architecture patterns, visualized</p>
       </div>
     </div>
 

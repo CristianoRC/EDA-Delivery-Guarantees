@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#0b1220" />
 <meta name="color-scheme" content="dark" />
 
-<title>Delivery Guarantees Simulator — Event-Driven Architecture (EDA)</title>
-<meta name="description" content="Interactive, browser-based simulator that visualizes message delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency, and Dead Letter Queue (DLQ). Models Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Kafka." />
-<meta name="keywords" content="event-driven architecture, EDA, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, message broker, Azure Service Bus, Azure Event Hubs, Azure Event Grid, Azure Storage Queue, RabbitMQ, Apache Kafka, distributed systems, simulator, teaching tool" />
+<title>EDA Simulator — Event-Driven Architecture Patterns in the Browser</title>
+<meta name="description" content="Browser-based simulator for Event-Driven Architecture. Visualize delivery guarantees (at-most-once, at-least-once, exactly-once), idempotency, Dead Letter Queue (DLQ), Outbox and Inbox patterns across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Kafka." />
+<meta name="keywords" content="EDA simulator, event-driven architecture, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, outbox pattern, inbox pattern, message broker, Azure Service Bus, Azure Event Hubs, Azure Event Grid, Azure Storage Queue, RabbitMQ, Apache Kafka, distributed systems, simulator, teaching tool" />
 <meta name="author" content="Cristiano Cunha" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <meta name="googlebot" content="index, follow" />
@@ -18,24 +18,24 @@
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Delivery Guarantees Simulator" />
-<meta property="og:title" content="Delivery Guarantees Simulator — Event-Driven Architecture" />
-<meta property="og:description" content="Interactive simulator for teaching EDA delivery guarantees: at-most-once, at-least-once, exactly-once, idempotency and DLQ across Azure Service Bus, Event Hubs, RabbitMQ and Kafka." />
+<meta property="og:site_name" content="EDA Simulator" />
+<meta property="og:title" content="EDA Simulator — Event-Driven Architecture Patterns in the Browser" />
+<meta property="og:description" content="Browser-based simulator for Event-Driven Architecture. Visualize delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns in real time." />
 <meta property="og:url" content="https://eda.cristianoprogramador.com/" />
 <meta property="og:image" content="https://eda.cristianoprogramador.com/og-image.png?v=2" />
 <meta property="og:image:secure_url" content="https://eda.cristianoprogramador.com/og-image.png?v=2" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Delivery Guarantees Simulator: visual flow Producer → Broker → Consumer → Database, covering at-most-once, at-least-once, exactly-once, idempotency and DLQ." />
+<meta property="og:image:alt" content="EDA Simulator: visual flow Producer → Broker → Consumer → Database, covering delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns." />
 <meta property="og:locale" content="en_US" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Delivery Guarantees Simulator — EDA" />
-<meta name="twitter:description" content="Visual, browser-based simulator for at-most-once, at-least-once, exactly-once, idempotency and DLQ. Built for teaching Event-Driven Architecture." />
+<meta name="twitter:title" content="EDA Simulator" />
+<meta name="twitter:description" content="Browser-based simulator for Event-Driven Architecture. Visualize delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns in real time." />
 <meta name="twitter:image" content="https://eda.cristianoprogramador.com/og-image.png?v=2" />
-<meta name="twitter:image:alt" content="Delivery Guarantees Simulator preview — Producer → Broker → Consumer → Database with at-most-once, at-least-once, exactly-once, idempotency and DLQ badges." />
+<meta name="twitter:image:alt" content="EDA Simulator preview: Producer → Broker → Consumer → Database with delivery guarantees, idempotency, DLQ, Outbox and Inbox badges." />
 
 <!-- Icons & manifest -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2338bdf8'/><stop offset='1' stop-color='%23a78bfa'/></linearGradient></defs><rect width='64' height='64' rx='12' fill='%230b1220'/><line x1='2' y1='32' x2='9' y2='32' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/><rect x='12' y='18' width='40' height='28' rx='3' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linejoin='round'/><path d='M12 22 L32 36 L52 22' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/><line x1='55' y1='32' x2='62' y2='32' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/></svg>" />
@@ -59,14 +59,14 @@
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      "name": "Delivery Guarantees Simulator",
+      "name": "EDA Simulator",
       "applicationCategory": "EducationalApplication",
       "applicationSubCategory": "Distributed Systems Simulator",
       "operatingSystem": "Any (Web Browser)",
       "url": "https://eda.cristianoprogramador.com/",
       "image": "https://eda.cristianoprogramador.com/og-image.png?v=2",
       "screenshot": "https://eda.cristianoprogramador.com/og-image.png?v=2",
-      "description": "Interactive simulator that visualizes message delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ, Redis Pub/Sub and Apache Kafka.",
+      "description": "Browser-based simulator for Event-Driven Architecture. Visualizes delivery guarantees (at-most-once, at-least-once, exactly-once), idempotency, Dead Letter Queue, Outbox and Inbox patterns across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ, Redis Pub/Sub and Apache Kafka.",
       "inLanguage": "en",
       "isAccessibleForFree": true,
       "offers": {
@@ -79,14 +79,14 @@
         "name": "Cristiano Cunha",
         "url": "https://github.com/CristianoRC"
       },
-      "codeRepository": "https://github.com/CristianoRC/EDA-Delivery-Guarantees",
-      "license": "https://github.com/CristianoRC/EDA-Delivery-Guarantees/blob/main/README.md",
-      "keywords": "event-driven architecture, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, Azure Service Bus, RabbitMQ, Kafka"
+      "codeRepository": "https://github.com/CristianoRC/EDA-Simulator",
+      "license": "https://github.com/CristianoRC/EDA-Simulator/blob/main/README.md",
+      "keywords": "EDA simulator, event-driven architecture, delivery guarantees, at-most-once, at-least-once, exactly-once, idempotency, dead letter queue, DLQ, outbox pattern, inbox pattern, Azure Service Bus, RabbitMQ, Kafka"
     },
     {
       "@type": "LearningResource",
-      "name": "Delivery Guarantees in Event-Driven Architecture",
-      "description": "Hands-on classroom simulator covering at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue patterns across mainstream message brokers.",
+      "name": "Event-Driven Architecture Patterns",
+      "description": "Hands-on classroom simulator covering delivery guarantees (at-most-once, at-least-once, exactly-once), idempotency, Dead Letter Queue, Outbox and Inbox patterns across mainstream message brokers.",
       "url": "https://eda.cristianoprogramador.com/",
       "image": "https://eda.cristianoprogramador.com/og-image.png?v=2",
       "educationalLevel": "Higher Education / Professional Development",
@@ -98,6 +98,8 @@
         "Exactly-once semantics with broker-side deduplication",
         "Consumer-side idempotency",
         "Dead Letter Queue (DLQ) handling for poison messages",
+        "Outbox Pattern with atomic DB write and relay polling",
+        "Inbox Pattern with consumer-side deduplication",
         "Trade-offs across Azure Service Bus, Event Hubs, Event Grid, Storage Queue, RabbitMQ and Apache Kafka"
       ]
     }
@@ -110,19 +112,21 @@
 
 <noscript>
   <main style="max-width:760px;margin:40px auto;padding:24px;font-family:system-ui,sans-serif;color:#e2e8f0;background:#0b1220;border-radius:12px;line-height:1.6">
-    <h1>Delivery Guarantees Simulator — Event-Driven Architecture</h1>
+    <h1>EDA Simulator</h1>
     <p>
-      This is an interactive, browser-based simulator built for teaching
-      <strong>delivery guarantees in Event-Driven Architecture (EDA)</strong>.
+      A browser-based simulator for
+      <strong>Event-Driven Architecture (EDA)</strong>.
       It visualizes the full <em>Producer → Broker → Consumer → Database</em> flow
       with animated messages, injectable failures and live metrics.
     </p>
-    <h2>Scenarios covered</h2>
+    <h2>Patterns covered</h2>
     <ul>
-      <li><strong>At-most-once</strong> — fire-and-forget; messages can be lost.</li>
-      <li><strong>At-least-once</strong> — retry until ACK; messages can be duplicated. Toggle consumer-side idempotency to see the bug appear and disappear.</li>
-      <li><strong>Exactly-once</strong> — broker-side deduplication and transactional commits.</li>
-      <li><strong>Dead Letter Queue (DLQ)</strong> — poison messages that exceed MaxDeliveryCount are dead-lettered instead of retried forever.</li>
+      <li><strong>At-most-once</strong>: fire-and-forget; messages can be lost.</li>
+      <li><strong>At-least-once</strong>: retry until ACK; messages can be duplicated. Toggle consumer-side idempotency to see the bug appear and disappear.</li>
+      <li><strong>Exactly-once</strong>: broker-side deduplication and transactional commits.</li>
+      <li><strong>Dead Letter Queue (DLQ)</strong>: poison messages that exceed MaxDeliveryCount are dead-lettered instead of retried forever.</li>
+      <li><strong>Outbox Pattern</strong>: atomic DB write plus relay polling to broker, no dual-write.</li>
+      <li><strong>Inbox Pattern</strong>: consumer-side deduplication via atomic inbox table inside the consumer transaction.</li>
     </ul>
     <h2>Brokers modeled</h2>
     <ul>
@@ -137,7 +141,7 @@
     <p>
       <strong>JavaScript is required</strong> to run the simulator. Please enable it,
       or view the source on
-      <a href="https://github.com/CristianoRC/EDA-Delivery-Guarantees">GitHub</a>.
+      <a href="https://github.com/CristianoRC/EDA-Simulator">GitHub</a>.
     </p>
   </main>
 </noscript>

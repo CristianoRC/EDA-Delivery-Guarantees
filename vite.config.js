@@ -5,7 +5,7 @@ import vuetify from 'vite-plugin-vuetify'
 
 export default defineConfig({
   // Relative base so the build works under any path the host serves it from
-  // (custom domain root, /EDA-Delivery-Guarantees/, gh-pages subpath, etc.)
+  // (custom domain root, /EDA-Simulator/, gh-pages subpath, etc.)
   base: './',
   resolve: {
     alias: {

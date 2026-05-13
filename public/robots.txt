@@ -1,4 +1,4 @@
-# Delivery Guarantees Simulator — https://eda.cristianoprogramador.com
+# EDA Simulator — https://eda.cristianoprogramador.com
 User-agent: *
 Allow: /
 

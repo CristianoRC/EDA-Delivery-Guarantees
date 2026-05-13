@@ -1,7 +1,7 @@
 {
-  "name": "Delivery Guarantees Simulator — EDA",
-  "short_name": "EDA Delivery",
-  "description": "Interactive simulator for delivery guarantees in Event-Driven Architecture: at-most-once, at-least-once, exactly-once, idempotency and Dead Letter Queue.",
+  "name": "EDA Simulator",
+  "short_name": "EDA Simulator",
+  "description": "Browser-based simulator for Event-Driven Architecture. Visualize delivery guarantees, idempotency, DLQ, Outbox and Inbox patterns in real time.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
