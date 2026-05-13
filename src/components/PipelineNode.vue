@@ -4,7 +4,11 @@
     class="node"
     :class="[
       `node-${variant}`,
-      { flash: store.flashing[variant], crash: store.crashing[variant] },
+      {
+        flash: store.flashing[variant],
+        crash: store.crashing[variant],
+        offline: variant === 'consumer' && store.fails.consumerDown,
+      },
     ]"
   >
     <div class="node-icon"><Icon :icon="icon" /></div>
@@ -75,6 +79,26 @@ onMounted(() => {
 
   &.flash { animation: flash 0.6s ease; }
   &.crash { animation: crash 0.6s ease; }
+  &.offline {
+    opacity: 0.45;
+    filter: grayscale(0.7);
+    border-style: dashed;
+    border-color: var(--danger);
+    &::after {
+      content: 'OFFLINE';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--danger);
+      background: var(--bg-panel);
+      padding: 2px 5px;
+      border-radius: 4px;
+      border: 1px solid var(--danger);
+    }
+  }
 }
 
 .node-icon {

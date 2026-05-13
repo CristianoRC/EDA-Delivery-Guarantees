@@ -26,6 +26,8 @@ const DEFAULT_CHIPS = [
   { key: 'network', icon: ICONS.network, label: 'Network 15%' },
   { key: 'ack', icon: ICONS.ackFail, label: 'ACK 20%' },
   { key: 'consumer', icon: ICONS.crash, label: 'Crash 15%' },
+  { key: 'consumerDown', icon: ICONS.consumerDown, label: 'Consumer down' },
+  { key: 'consumerOverload', icon: ICONS.consumerOverload, label: 'Overload 25%' },
 ]
 
 const OUTBOX_CHIPS = [

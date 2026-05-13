@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { useLogStore } from '@/stores/log'
 import { animateMsg, sleep } from './useAnimation'
@@ -13,6 +14,24 @@ export function useDelivery() {
   const dlq = useDLQ()
   const outbox = useOutbox()
   const inbox = useInbox()
+
+  let draining = false
+  watch(() => store.fails.consumerDown, async (isDown) => {
+    if (isDown || draining || store.heldMessages.length === 0) return
+    draining = true
+    try {
+      log.push(`▶️ Consumer recovered, broker draining ${store.heldMessages.length} held message(s)`, 'info')
+      while (store.heldMessages.length > 0 && !store.fails.consumerDown) {
+        const held = store.heldMessages.shift()
+        store.stats.queue--
+        log.push(`📨 Broker redelivering held ${held.idempotencyKey}`, 'dim')
+        await redeliverFromBroker(held.logicalId, held.idempotencyKey, held.amount, held.label)
+        await sleep(150)
+      }
+    } finally {
+      draining = false
+    }
+  })
 
   async function sendLogicalMessage(amount = 100) {
     if (store.isDLQ) return dlq.sendDLQMessage()
@@ -77,8 +96,45 @@ export function useDelivery() {
 
     store.stats.queue--
     store.setPhase('Broker → Consumer')
+
+    if (store.fails.consumerDown) {
+      log.push(`💀 Consumer is offline, ${idempotencyKey} cannot be received`, 'danger')
+      await animateMsg('broker', 'consumer', label, cls, true)
+      if (mode === 'at-most-once') {
+        log.push(`🪦 Broker auto-ack on send: ${idempotencyKey} lost (nobody received)`, 'danger')
+        store.stats.lost++
+        return
+      }
+      log.push(`⏸️ Broker holding ${idempotencyKey} in queue until consumer recovers`, 'warn')
+      store.stats.queue++
+      store.heldMessages.push({ logicalId, idempotencyKey, amount, label })
+      return
+    }
+
     await animateMsg('broker', 'consumer', label, cls)
     store.flash('consumer')
+
+    if (store.fails.consumerOverload && Math.random() < 0.25) {
+      store.crash('consumer')
+      log.push(`🚧 Consumer overloaded: dropped ${idempotencyKey} (buffer full / backpressure)`, 'danger')
+      if (mode === 'at-most-once') {
+        store.stats.lost++
+        return
+      }
+      log.push(`⏰ Broker will redeliver ${idempotencyKey} after backoff`, 'warn')
+      await sleep(400)
+      return redeliverFromBroker(logicalId, idempotencyKey, amount, label)
+    }
+
+    if (mode === 'at-most-once') {
+      log.push(`📭 Broker: auto-ack, ${idempotencyKey} removed from queue on delivery`, 'dim')
+      if (store.fails.consumer && Math.random() < 0.15) {
+        store.crash('consumer')
+        log.push(`💥 Consumer crashed before processing ${idempotencyKey} → message lost (broker already discarded)`, 'danger')
+        store.stats.lost++
+        return
+      }
+    }
 
     store.setPhase(`Consumer processing ${idempotencyKey}`)
     log.push(`⚙️ Consumer: processing ${idempotencyKey}`, 'dim')
@@ -103,10 +159,15 @@ export function useDelivery() {
     }
     store.flash('db')
 
+    if (mode === 'at-most-once') {
+      await sleep(200)
+      log.push(`✔️ Consumer: ${idempotencyKey} done (no ACK needed in fire-and-forget)`, 'ok')
+      return
+    }
+
     if (store.fails.consumer && Math.random() < 0.15) {
       store.crash('consumer')
       log.push(`💥 Consumer crashed after processing ${idempotencyKey} (ACK NOT sent!)`, 'danger')
-      if (mode === 'at-most-once') return
       store.setPhase('Visibility timeout: broker redelivering...')
       log.push(`⏰ Broker: visibility timeout, redelivering ${idempotencyKey}`, 'warn')
       await sleep(500)
@@ -123,7 +184,6 @@ export function useDelivery() {
     await animateMsg('consumer', 'broker', 'ACK', 'ack', ackLost)
     if (ackLost) {
       log.push(`📡 Network: ACK for ${idempotencyKey} lost!`, 'danger')
-      if (mode === 'at-most-once') return
       log.push(`⏰ Broker: missing ACK, redelivering ${idempotencyKey}`, 'warn')
       await sleep(400)
       return redeliverFromBroker(logicalId, idempotencyKey, amount, label)
@@ -135,6 +195,7 @@ export function useDelivery() {
     store.setPhase('Broker → Consumer (redelivery)')
     await animateMsg('broker', 'consumer', label, 'dup')
     store.flash('consumer')
+    store.stats.processed++
     const isDuplicate = store.processedKeys.has(idempotencyKey)
     if (store.idempotency && isDuplicate) {
       log.push(`🛡️ Consumer: redelivery of ${idempotencyKey} discarded (idempotency)`, 'ok')

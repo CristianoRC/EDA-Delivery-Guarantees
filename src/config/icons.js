@@ -37,6 +37,8 @@ export const ICONS = {
   network: 'mdi:wifi-strength-alert-outline',
   ackFail: 'mdi:email-alert-outline',
   crash: 'mdi:alert-circle-outline',
+  consumerDown: 'mdi:power-plug-off-outline',
+  consumerOverload: 'mdi:gauge-full',
   dbCommitFail: 'mdi:database-alert-outline',
   txAbort: 'mdi:bomb-outline',
 }

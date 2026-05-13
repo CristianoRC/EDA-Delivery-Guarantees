@@ -20,6 +20,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
     network: false,
     ack: false,
     consumer: false,
+    consumerDown: false,
+    consumerOverload: false,
     dbCommit: false,
     relayCrash: false,
     txAbort: false,
@@ -49,6 +51,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   const brokerSeen = new Set()
   const outboxRows = reactive([])
   const inboxKeys = reactive(new Set())
+  const heldMessages = reactive([])
 
   const phase = ref('Ready')
   const phaseActive = ref(false)
@@ -160,6 +163,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     brokerSeen.clear()
     outboxRows.splice(0, outboxRows.length)
     inboxKeys.clear()
+    heldMessages.splice(0, heldMessages.length)
     log.reset()
     setPhase('Ready')
     log.push('🔄 Simulation reset', 'info')
@@ -171,7 +175,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   return {
     scenario, tool, speed, idempotency, maxDeliveryCount, poisonRate, outboxMode,
-    fails, stats, processedKeys, brokerSeen, outboxRows, inboxKeys,
+    fails, stats, processedKeys, brokerSeen, outboxRows, inboxKeys, heldMessages,
     phase, phaseActive, flashing, crashing,
     scenarioConfig, toolConfig, mode, isDLQ, isOutbox, isInbox, balanceDiff,
     setPhase, flash, crash, setScenario, setTool, setIdempotency, setOutboxMode,
