@@ -15,12 +15,21 @@ Built with Vue 3 + Vuetify + Pinia + Vite. Run `npm install && npm run dev` to s
 
 The simulator is organized as a **side menu of scenarios**, each isolating one concept. Pick a scenario on the left, the rest of the UI adapts.
 
+### Delivery Guarantees
+
 | Scenario | What it teaches | Default tool |
-|----------|-----------------|--------------|
+| --- | --- | --- |
 | 💨 **At most once** | Fire and forget. Messages can be lost on any failure. | Azure Storage Queue |
 | 🔁 **At least once** | Retry until ACK. Messages can be duplicated. *Idempotency toggle here.* | Azure Service Bus |
 | 🛡️ **Exactly once** | Broker side dedup + transactional commits. | Azure Service Bus |
-| 🪦 **Dead Letter Queue** | Poison messages exceed MaxDeliveryCount → moved to DLQ. | Azure Service Bus |
+
+### Reliability Patterns
+
+| Scenario | What it teaches | Default tool |
+| --- | --- | --- |
+| 🪦 **Dead Letter Queue** | Poison messages exceed MaxDeliveryCount, moved to DLQ. | Azure Service Bus |
+| 📦 **Outbox Pattern** | Atomic DB write + relay polling to broker (no dual-write). | Azure Service Bus |
+| 📥 **Inbox Pattern** | Consumer-side dedup via atomic inbox table inside the consumer transaction. | Azure Service Bus |
 
 ## The teaching scenario
 
@@ -46,34 +55,32 @@ Each tool exposes only the guarantees / DLQ behavior it actually supports native
 
 ## Injectable failures
 
-Four checkboxes inject realistic distributed system failures (used by all scenarios):
+The failures panel adapts to the active scenario, exposing only the failure modes that are meaningful for the pattern being taught.
 
-* **📤 Producer 10%**: broker is down / producer can't publish.
+### Delivery Guarantees (at-most-once, at-least-once, exactly-once)
+
+* **📤 Producer 10%**: broker is down or producer can't publish.
 * **📡 Network 15%**: packet lost in transit (Producer → Broker).
 * **✉️ ACK 20%**: consumer's ACK never reaches the broker (triggers redelivery).
 * **💥 Crash 15%**: consumer crashes *after* processing but *before* ACKing.
+* **🛑 Consumer down**: consumer is offline; messages pile up in the broker.
+* **🥵 Overload 25%**: consumer is overloaded and rejects work under pressure.
 
 Or hit **Chaos burst** to enable everything and send 15 messages in a row.
 
-## File layout
+### Dead Letter Queue
 
-```
-Delivery-Guarantees/
-├── index.html              # entry point + SEO meta + noscript fallback
-├── public/                 # robots.txt, sitemap.xml, manifest, OG image, CNAME
-├── src/
-│   ├── App.vue
-│   ├── main.js
-│   ├── components/         # AppTopBar, AppSideBar, SimulationStage, EventLog, etc.
-│   ├── stores/             # Pinia stores (simulator, log)
-│   ├── composables/        # reusable logic
-│   ├── config/             # scenario + tool definitions
-│   ├── plugins/            # Vuetify setup
-│   └── styles/             # SCSS theme
-├── vite.config.js
-├── package.json
-└── README.md
-```
+* **☠️ Poison 100%**: every message is a poison pill and always fails processing, so you can observe the redelivery loop and DLQ landing.
+
+### Outbox Pattern
+
+* **🧨 DB commit 25%**: the atomic business + outbox transaction aborts (nothing is written, nothing is published).
+* **🪓 Relay crash 40%**: the relay/poller crashes between reading the outbox and publishing to the broker.
+
+### Inbox Pattern
+
+* **↩️ Tx abort 25%**: the consumer transaction (inbox insert + business write) aborts before commit.
+* **✉️ ACK lost 40%**: the ACK to the broker is lost after the inbox commit, forcing redelivery (dedup is exercised).
 
 Runs entirely client side. No backend, no analytics, no external API calls.
 
