@@ -57,6 +57,17 @@
       </div>
 
       <button class="btn btn-ghost" @click="store.reset()">Reset</button>
+
+      <a
+        class="btn btn-ghost btn-icon github-link"
+        href="https://github.com/CristianoRC/EDA-Simulator"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Source on GitHub · by Cristiano Cunha"
+        aria-label="Source on GitHub"
+      >
+        <Icon :icon="ICONS.github" />
+      </a>
     </div>
   </header>
 </template>
@@ -66,6 +77,7 @@ import { Icon } from '@iconify/vue'
 import { useSimulatorStore } from '@/stores/simulator'
 import { TOOLS, TOOL_GROUPS } from '@/config/tools'
 import { SPEEDS } from '@/config/scenarios'
+import { ICONS } from '@/config/icons'
 
 const store = useSimulatorStore()
 
@@ -155,5 +167,16 @@ function onToolChange(e) {
   transition: all 0.15s;
   &:hover { border-color: var(--accent); }
   &.btn-ghost { background: transparent; }
+  &.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 0;
+    text-decoration: none;
+    &:hover { color: var(--text); }
+  }
 }
 </style>
