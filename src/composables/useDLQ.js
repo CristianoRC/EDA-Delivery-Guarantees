@@ -19,10 +19,10 @@ export function useDLQ() {
 
   async function dlqAttempt(id, label, isPoison, deliveryCount) {
     store.setPhase(`Delivery attempt ${deliveryCount} of ${id}`)
-    store.flash('producer')
-    store.stats.physicalSent++
 
     if (deliveryCount === 1) {
+      store.flash('producer')
+      store.stats.physicalSent++
       await animateMsg('producer', 'broker', label, isPoison ? 'poison' : '')
       store.flash('broker')
       store.stats.queue++

@@ -110,11 +110,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     const sc = SCENARIOS[id]
     if (!sc.showIdempotency) idempotency.value = false
 
-    const currentTool = TOOLS[tool.value]
-    const valid = sc.showDLQ
-      ? currentTool.supportsDLQ
-      : currentTool.supports.includes(sc.mode)
-    if (!valid) tool.value = sc.defaultTool
+    tool.value = sc.defaultTool
 
     reset()
     log.push(`🎯 Scenario: ${sc.name} (mode: ${sc.mode})`, 'info')

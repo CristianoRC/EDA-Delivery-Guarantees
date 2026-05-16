@@ -15,7 +15,10 @@
           {{ store.idempotency ? 'ON' : 'OFF' }}
         </span>
       </div>
-      <span class="setting-hint">
+      <span v-if="store.scenario === 'exactly-once'" class="setting-hint">
+        <strong>Complements</strong> broker duplicate detection: covers ACK loss / consumer crashes where the broker redelivers. Broker dedup alone is not enough for exactly-once <em>processing</em>.
+      </span>
+      <span v-else class="setting-hint">
         Discards repeated messages by <code style="font-size:9px">idempotency_key</code> (Redis / inbox table).
       </span>
     </div>

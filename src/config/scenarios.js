@@ -9,7 +9,7 @@ export const SCENARIOS = {
     mode: 'at-most-once',
     showIdempotency: false,
     showDLQ: false,
-    defaultTool: 'storagequeue',
+    defaultTool: 'redis-pubsub',
     category: 'guarantees',
   },
   'at-least-once': {
@@ -27,7 +27,7 @@ export const SCENARIOS = {
     id: 'exactly-once',
     name: 'Exactly-once',
     icon: ICONS.exactlyOnce,
-    blurb: 'Broker dedup + transactions.',
+    blurb: 'Broker dedup. Pair with consumer idempotency.',
     mode: 'exactly-once',
     showIdempotency: true,
     showDLQ: false,
