@@ -10,24 +10,45 @@ export function useInbox() {
   const store = useSimulatorStore()
   const log = useLogStore()
 
-  async function sendInboxMessage(amount = 100) {
-    store.stats.logicalSent++
-    store.stats.expected += amount
-    const logicalId = store.nextMsgId()
-    const idempotencyKey = `tx-${logicalId}`
+  async function sendInboxMessage(amount = 100, opts = {}) {
+    const isDuplicate = opts.isDuplicate === true
+    const logicalId = opts.logicalId ?? store.nextMsgId()
+    const idempotencyKey = opts.idempotencyKey ?? `tx-${logicalId}`
     const label = `$${amount} #${logicalId}`
 
-    store.setPhase(`Producer publishing ${idempotencyKey}`)
+    // A deliberate duplicate is the same logical message re-published by the
+    // producer (client retry / double submit), so it must NOT add to expected.
+    if (!isDuplicate) {
+      store.stats.logicalSent++
+      store.stats.expected += amount
+    }
+
+    store.setPhase(`Producer publishing ${idempotencyKey}${isDuplicate ? ' (duplicate)' : ''}`)
     store.flash('producer')
-    log.push(`📤 Producer: publish ${idempotencyKey} of $${amount}`, 'info')
+    log.push(
+      `📤 Producer: publish ${idempotencyKey} of $${amount}${isDuplicate ? ' (deliberate duplicate)' : ''}`,
+      isDuplicate ? 'warn' : 'info',
+    )
 
     store.stats.physicalSent++
-    await animateMsg('producer', 'broker', label, '')
+    await animateMsg('producer', 'broker', label, isDuplicate ? 'dup' : '')
     store.flash('broker')
     store.stats.queue++
     log.push(`📨 Broker: enqueued ${idempotencyKey}`, 'dim')
 
     await deliverToConsumer({ logicalId, idempotencyKey, amount, label, attempt: 1 })
+  }
+
+  async function sendDuplicateMessage(amount = 100) {
+    const logicalId = store.nextMsgId()
+    const idempotencyKey = `tx-${logicalId}`
+    log.push(
+      `🔁 Producer sends ${idempotencyKey} twice (original + duplicate). Inbox must absorb the second.`,
+      'warn',
+    )
+    await sendInboxMessage(amount, { logicalId, idempotencyKey })
+    await sleep(Math.max(220, store.speed * 0.3))
+    await sendInboxMessage(amount, { logicalId, idempotencyKey, isDuplicate: true })
   }
 
   async function deliverToConsumer({ logicalId, idempotencyKey, amount, label, attempt }) {
@@ -108,5 +129,5 @@ export function useInbox() {
     }
   }
 
-  return { sendInboxMessage, sendBatch }
+  return { sendInboxMessage, sendDuplicateMessage, sendBatch }
 }

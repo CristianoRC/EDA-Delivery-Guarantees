@@ -15,14 +15,22 @@
       >
         <Icon :icon="ICONS.scenarioOutbox" class="btn-icon" /> Stress relay
       </button>
-      <button
-        v-else-if="store.isInbox"
-        class="btn btn-inbox"
-        title="Send 10 messages with broker redelivery and tx abort enabled, inbox should keep balance correct"
-        @click="inboxStress"
-      >
-        <Icon :icon="ICONS.scenarioInbox" class="btn-icon" /> Stress inbox
-      </button>
+      <template v-else-if="store.isInbox">
+        <button
+          class="btn btn-dup"
+          title="Producer publishes the same message twice; the inbox dedup table absorbs the duplicate"
+          @click="delivery.sendDuplicate(100)"
+        >
+          <Icon :icon="ICONS.scenarioInbox" class="btn-icon" /> Send duplicate
+        </button>
+        <button
+          class="btn btn-inbox"
+          title="Send 10 messages with broker redelivery and tx abort enabled, inbox should keep balance correct"
+          @click="inboxStress"
+        >
+          <Icon :icon="ICONS.scenarioInbox" class="btn-icon" /> Stress inbox
+        </button>
+      </template>
       <button v-else-if="!store.isDLQ" class="btn btn-danger" @click="delivery.chaosBurst()">
         <Icon :icon="ICONS.chaos" class="btn-icon" /> Chaos burst
       </button>
@@ -101,6 +109,17 @@ function inboxStress() {
     &:hover {
       filter: brightness(1.1);
       box-shadow: 0 0 12px rgba(167, 139, 250, 0.4);
+    }
+  }
+  .btn-dup {
+    grid-column: span 2;
+    background: transparent;
+    color: var(--inbox, #5eead4);
+    border-color: var(--inbox, #5eead4);
+    font-weight: 700;
+    &:hover {
+      background: rgba(94, 234, 212, 0.12);
+      box-shadow: 0 0 12px rgba(94, 234, 212, 0.25);
     }
   }
   .btn-inbox {

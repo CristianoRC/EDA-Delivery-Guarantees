@@ -226,6 +226,10 @@ export function useDelivery() {
     }
   }
 
+  async function sendDuplicate(amount = 100) {
+    if (store.isInbox) return inbox.sendDuplicateMessage(amount)
+  }
+
   async function chaosBurst() {
     store.fails.producer = store.fails.network = store.fails.ack = store.fails.consumer = true
     log.push('🌪️ Chaos burst: 15 messages with ALL failures enabled', 'warn')
@@ -235,5 +239,5 @@ export function useDelivery() {
     }
   }
 
-  return { sendLogicalMessage, sendBatch, chaosBurst }
+  return { sendLogicalMessage, sendDuplicate, sendBatch, chaosBurst }
 }
